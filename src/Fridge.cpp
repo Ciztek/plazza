@@ -2,6 +2,8 @@
 
 #include "Fridge.hpp"
 
+using namespace Plazza;
+
 Fridge::Fridge()
 {
   for (auto &ingredient: _stock)

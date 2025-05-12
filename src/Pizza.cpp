@@ -1,5 +1,7 @@
 #include "Pizza.hpp"
 
+using namespace Plazza;
+
 Pizza::Pizza(uint8_t type, uint8_t size, State state)
 {
   set(type, size, state);
