@@ -54,6 +54,7 @@ every_obj += $$(objs__$(strip $2))
 endef
 
 base-src := $(shell find src -type f -name "*.cpp")
+base-src += $(shell find lib -type f -name "*.cpp")
 
 $(eval $(call mk-bin, plazza, release))
 $(eval $(call mk-bin, debug, debug))
@@ -83,7 +84,7 @@ fclean: clean
 
 .PHONY: mrproper #? mrproper: (almost) Full repository cleanup
 mrproper: fclean
-	$(RM) -r $(BUILD) lib
+	$(RM) -r $(BUILD)
 	$(RM) -r .cache result $(CC_JSON)
 
 $(CC_JSON):
