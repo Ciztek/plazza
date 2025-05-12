@@ -1,7 +1,9 @@
 #pragma once
 
-#include <filesystem>
+#include "Data.hpp"
 
 namespace Config {
-  void parse(const std::filesystem::path &path);
+  static Data::Ids ingredientsIds;
+  static Data::Ids recipesIds;
+  static Data::RecipeBook recipes;
 }  // namespace Config
