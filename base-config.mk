@@ -15,7 +15,7 @@ AR ?= ar
 RM ?= rm --force
 
 CXXFLAGS := -std=c++20
-CXXFLAGS += -iquote $/libs -iquote $/include
+CXXFLAGS += -iquote $/libs -iquote $/lib/parsing -iquote $/include
 CXXFLAGS += $(shell cat $/warning_flags.txt)
 
 CXXFLAGS_release := -O2 -fomit-frame-pointer

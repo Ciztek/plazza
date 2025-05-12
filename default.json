@@ -1,0 +1,31 @@
+{
+    "ingredients": [
+        "ChiefLove",
+        "Dough",
+        "Eggplant",
+        "GoatCheese",
+        "Gruyere",
+        "Ham",
+        "Mushrooms",
+        "Steak",
+        "Tomato"
+    ],
+    "recipes": {
+        "Margarita": {
+            "ingredients": ["Dough", "Tomato", "Gruyere"],
+            "cooking_time": 1000
+        },
+        "Regina": {
+            "ingredients": ["Dough", "Tomato", "Gruyere", "Ham", "Mushrooms"],
+            "cooking_time" : 2000
+        },
+        "Americana": {
+            "ingredients": ["Dough", "Tomato", "Gruyere", "Steak"],
+            "cooking_time" : 2000
+        },
+        "Fantasia": {
+            "ingredients": ["Dough", "Tomato", "Eggplant", "GoatCheese", "ChiefLove"],
+            "cooking_time": 4000
+        }
+    }
+}
