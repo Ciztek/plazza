@@ -36,14 +36,14 @@ auto Pizza::raw() const -> uint8_t
   return data.load(std::memory_order_acquire);
 }
 
-auto Pizza::getType() const -> uint8_t
+auto Pizza::getType() const -> Pizza::Type
 {
-  return (raw() & TYPE_MASK) >> TYPE_SHIFT;
+  return static_cast<Pizza::Type>((raw() & TYPE_MASK) >> TYPE_SHIFT);
 }
 
-auto Pizza::getSize() const -> uint8_t
+auto Pizza::getSize() const -> Pizza::Size
 {
-  return (raw() & SIZE_MASK) >> SIZE_SHIFT;
+  return static_cast<Pizza::Size>((raw() & SIZE_MASK) >> SIZE_SHIFT);
 }
 
 auto Pizza::getState() const -> Pizza::State
