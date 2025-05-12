@@ -1,5 +1,5 @@
 -Wall -Wextra
--Wunused -Wpedantic
+-Wunused
 -Wundef
 -Wshadow
 -Wcast-align
@@ -16,3 +16,6 @@
 
 -Wno-format-truncation
 -Wno-format-nonliteral
+
+-Wno-gnu-anonymous-struct
+-Wno-gnu-anonymous-union
