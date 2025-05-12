@@ -1,0 +1,18 @@
+.build
+*.[oda]
+
+# Binaries
+plazza
+bonus
+debug
+a.out
+
+# IDEs
+.vscode/
+.idea/
+
+# Utilities
+compile_commands.json
+.pre-commit-config.yaml
+ecsls.toml
+.envrc
