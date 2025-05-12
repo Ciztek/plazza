@@ -83,7 +83,7 @@ jobs:
           git remote add epitech "${{ secrets.GH_TARGET_REPO }}"
 
       - name: Fix headers
-        run: python .github/insert_headers.py
+        run: python scripts/insert_headers.py
 
       - name: Commit
         run: |
