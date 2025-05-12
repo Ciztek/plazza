@@ -40,8 +40,8 @@ namespace Plazza {
     auto clear() -> Pizza &;
 
     [[nodiscard]] auto raw() const -> uint8_t;
-    [[nodiscard]] auto getType() const -> uint8_t;
-    [[nodiscard]] auto getSize() const -> uint8_t;
+    [[nodiscard]] auto getType() const -> Type;
+    [[nodiscard]] auto getSize() const -> Size;
     [[nodiscard]] auto getState() const -> State;
 
   private:
