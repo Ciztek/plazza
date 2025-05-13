@@ -1,8 +1,8 @@
 #include <cstdlib>
 
+#include "Config.hpp"
 #include "ErrorOr.hpp"
 #include "Logger.hpp"
-#include "Plazza.hpp"
 
 LogLevel LogStream::FILTER = LogLevel::DEBUG;
 
@@ -10,7 +10,7 @@ namespace {
 
   auto wrappedMain(int, char *[]) -> MaybeError
   {
-    TRY(Config::init());
+    TRY(CONFIG_FILE.init());
     return Nil{};
   }
 }  // namespace
