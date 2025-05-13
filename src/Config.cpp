@@ -21,6 +21,10 @@ namespace {
       recipe_data["ingredients"].get<JSON::JSONArray>());
     double time_value = TRY(recipe_data["cooking_time"].get<double>());
 
+    for (const auto &item: recipe_data)
+      if (item.first != "ingredients" && item.first != "cooking_time")
+        return Error("Invalid recipe key");
+
     if (recipe_array.empty())
       return Error("Recipe array is empty");
     for (const auto &item: recipe_array) {
@@ -45,6 +49,10 @@ namespace {
       "s"));
     JSON::
       JSONObject recipes_object = TRY(json.get<JSON::JSONObject>("recipes"));
+
+    for (const auto &item: TRY(json.get<JSON::JsonObject>()))
+      if (item.first != "ingredients" && item.first != "recipes")
+        return Error("Invalid key in JSON");
 
     if (ingredients_array.empty())
       return Error("Ingredients array is empty");
