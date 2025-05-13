@@ -1,10 +1,10 @@
 #pragma once
 
-#include <array>
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
-#include <map>
+#include <cstdio>
+#include <vector>
 
 #include "Pizza.hpp"
 
@@ -26,41 +26,19 @@ namespace Plazza {
   private:
     class Fridge {
     public:
-      enum class Ingredient : uint8_t {
-        ChiefLove = 0,
-        Dough,
-        Eggplant,
-        GoatCheese,
-        Gruyere,
-        Ham,
-        Mushrooms,
-        Steak,
-        Tomato,
-        COUNT
-      };
       Fridge();
       ~Fridge() = default;
 
-      [[nodiscard]] auto get(Ingredient ing) const -> uint8_t;
-      void consume(Ingredient ing, uint8_t amount = 1);
-      void refill(Ingredient ing, uint8_t amount = MAX_CAPACITY);
+      [[nodiscard]] auto get(size_t ing) const -> uint8_t;
+      void consume(size_t ing, uint8_t amount = 1);
+      void refill(size_t ing, uint8_t amount = MAX_CAPACITY);
 
       static constexpr uint8_t MAX_CAPACITY = 5;
 
     private:
-      std::array<
-        std::atomic<uint8_t>,
-        static_cast<std::size_t>(Ingredient::COUNT)>
-        _stock;
+      std::vector<std::atomic<uint8_t>> _stock;
     };
 
     Fridge _fridge;
-
-    static constexpr uint8_t MAX_INGREDIENTS =
-      static_cast<size_t>(Fridge::Ingredient::COUNT) * Fridge::MAX_CAPACITY;
-
-    using IngredientList = std::array<Fridge::Ingredient, MAX_INGREDIENTS>;
-    using RecipeBook = std::map<Pizza::Type, IngredientList>;
-    static const RecipeBook _recipes;
   };
 }  // namespace Plazza
