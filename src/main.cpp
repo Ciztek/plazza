@@ -1,6 +1,19 @@
 #include <cstdlib>
 
-int main(void)
+#include "ErrorOr.hpp"
+#include "Plazza.hpp"
+
+namespace {
+
+  auto wrappedMain(int, char *[]) -> MaybeError
+  {
+    TRY(Config::init());
+    return Nil{};
+  }
+}  // namespace
+
+auto main(int argc, char *argv[]) -> int
 {
-  return EXIT_SUCCESS;
+  if (wrappedMain(argc, argv).is_error())
+    return EXIT_TEK;
 }
