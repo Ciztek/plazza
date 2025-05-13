@@ -1,13 +1,13 @@
 #include <cstdlib>
 
+#include "Config.hpp"
 #include "ErrorOr.hpp"
-#include "Plazza.hpp"
 
 namespace {
 
   auto wrappedMain(int, char *[]) -> MaybeError
   {
-    TRY(Config::init());
+    TRY(CONFIG_FILE.init());
     return Nil{};
   }
 }  // namespace
