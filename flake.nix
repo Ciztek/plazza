@@ -31,6 +31,7 @@
             gnumake
             compiledb
             gcovr
+            hl-log-viewer
           ]
           ++ (with self.packages.${pkgs.system}; [
             align-slashes
