@@ -1,11 +1,17 @@
 # PLAZZA - WHO SAID ANYTHING ABOUT PIZZAS?
 
+<!-- Badges -->
 ![C++](https://img.shields.io/badge/language-C%2B%2B-blue.svg?logo=c%2B%2B&logoColor=white)
 ![Makefile](https://img.shields.io/badge/build-Makefile-brightgreen?logo=gnu&logoColor=white)
-![Linux](https://img.shields.io/badge/platform-Linux-lightgrey?logo=linux)
+![Linux x86_64](https://img.shields.io/badge/platform-Linux%20x86__64-lightgrey?logo=linux)
 ![Nix](https://img.shields.io/badge/env-Nix-5277C3?logo=nixos&logoColor=white)
-![Coverage](https://img.shields.io/badge/coverage-pending-yellow?logo=codecov)
-![License](https://img.shields.io/badge/license-MIT-informational?logo=open-source-initiative)
+[![Coverage](https://img.shields.io/codecov/c/github/Ciztek/plazza?logo=codecov)](https://codecov.io/gh/Ciztek/plazza)
+![Build](https://img.shields.io/github/actions/workflow/status/Ciztek/plazza/ci.yml?branch=main&logo=github)
+![Last Commit](https://img.shields.io/github/last-commit/Ciztek/plazza?logo=git)
+![Issues](https://img.shields.io/github/issues/Ciztek/plazza?logo=github)
+![Pull Requests](https://img.shields.io/github/issues-pr/Ciztek/plazza?logo=github)
+![Code style](https://img.shields.io/badge/code%20style-clangformat-blue?logo=clang)
+![IPC](https://img.shields.io/badge/IPC-Shared%20Memory-orange?logo=protocols)
 
 ## Overview
 
@@ -210,6 +216,29 @@ Pizza recipes and ingredients can be configured via a `config.json` file:
 ## REPL
 
 The reception provides an interactive shell for entering pizza orders and commands (e.g., `status`).
+
+## IPC
+
+### Why Shared Memory?
+
+In PLAZZA, the reception and each kitchen run as separate processes. To coordinate pizza orders, status updates, and results, these processes must communicate efficiently. Shared memory is chosen as the primary IPC (Inter-Process Communication) mechanism for several reasons:
+
+- **Performance:** Shared memory allows multiple processes to access the same memory region directly, enabling fast data exchange without the overhead of message passing or file I/O.
+- **Low Latency:** Unlike pipes or sockets, shared memory avoids kernel/user space copying for each message, reducing latency—crucial for real-time order management and kitchen status updates.
+- **Flexible Data Structures:** Shared memory supports complex data structures (e.g., serialized pizza orders, kitchen statuses), making it easier to implement features like load balancing and real-time monitoring.
+
+### Why Use Shared Memory in PLAZZA?
+
+- **Order Dispatch:** The reception serializes pizza orders and writes them to shared memory, where kitchens can read and process them concurrently.
+- **Status Reporting:** Kitchens update their status (e.g., cook occupancy, ingredient stocks) in shared memory, allowing the reception to display real-time information to users.
+- **Scalability:** As new kitchens (processes) are created or destroyed dynamically, shared memory provides a scalable way to connect multiple processes without complex socket management.
+- **Synchronization:** Shared memory, combined with mutexes and condition variables, ensures safe concurrent access and synchronization between the reception and kitchens.
+
+### Encapsulation
+
+PLAZZA encapsulates shared memory access in dedicated classes, providing clean interfaces for reading/writing data and supporting operator overloading (e.g., `<<`, `>>`) for serialization. This abstraction simplifies IPC usage and helps prevent common concurrency bugs.
+
+**TL/DR:** Shared memory is used in PLAZZA for its speed, flexibility, and suitability for real-time, multi-process coordination—making it ideal for simulating a responsive, scalable pizzeria environment.
 
 ## Contributors
 
