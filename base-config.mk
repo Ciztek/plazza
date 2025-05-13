@@ -15,11 +15,11 @@ AR ?= ar
 RM ?= rm --force
 
 CFLAGS := -std=c2x -pedantic
-CFLAGS += -iquote $/lib/parsing -iquote $/include
+CFLAGS += -iquote $/libs -iquote $/include
 CFLAGS += $(shell cat $/warning_flags.txt)
 
 CXXFLAGS := -std=c++20
-CXXFLAGS += -iquote $/lib/parsing -iquote $/include
+CXXFLAGS += -iquote $/libs -iquote $/include
 CXXFLAGS += $(shell cat $/warning_flags.txt)
 
 CFLAGS_release := -O2 -DNEBUG -fomit-frame-pointer
