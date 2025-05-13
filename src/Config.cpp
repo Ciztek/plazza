@@ -1,88 +1,76 @@
-#include <iostream>
-#include <variant>
+#include <filesystem>
 
-#include "Exception.hpp"
+#include "Data.hpp"
+#include "ErrorOr.hpp"
 #include "Plazza.hpp"
-#include "json/JSON.hpp"
+#include "json-parser/JSONParser.hpp"
+#include "json-parser/JSONValue.hpp"
 
 namespace {
-  void parse_ingredient(const Parser::JSON &json)
-  {
-    const auto &ingredients_array = json["\"ingredients\""];
-    const auto *array_ptr = Parser::JSON::
-      get_if_or_throw<Parser::JsonArray>(ingredients_array, "ingredients");
-    for (const auto &item: *array_ptr) {
-      const auto *ingredient_ptr = Parser::JSON::
-        get_if_or_throw<std::string>(*item, "ingredients array item");
-      std::cout << "Ingredient: " << *ingredient_ptr << "\n";
-    }
-  }
 
-  void parse_recipe_content(
-    const Parser::JsonObject &recipe_data,
-    const std::string &key)
+  auto parse_recipe(
+    const std::string &key,
+    const std::shared_ptr<JSON::JSONValue> &value) -> MaybeError
   {
-    const auto time = recipe_data.at("\"cooking_time\"");
-    if (!std::holds_alternative<double>(time->value))
-      throw Parser::ParserException("Recipe time must be a double");
-    const auto recipe_array_ptr = recipe_data.at("\"ingredients\"");
-    if (!std::holds_alternative<Parser::JsonArray>(recipe_array_ptr->value))
-      throw Parser::ParserException("Recipe must be an array");
-    Parser::JsonArray recipe_array = std::
-      get<Parser::JsonArray>(recipe_array_ptr->value);
+    Config::recipesIds.add(key);
+    size_t recipe_id = Config::recipesIds.lookup(key);
+
+    std::vector<size_t> recipeContent;
+
+    JSON::JsonObject recipe_data = TRY(value->get<JSON::JsonObject>());
+    JSON::JsonArray recipe_array = TRY(
+      recipe_data["ingredients"]->get<JSON::JsonArray>());
+    double time_value = TRY(recipe_data["cooking_time"]->get<double>());
+
     if (recipe_array.empty())
-      throw Parser::ParserException("Recipe array is empty");
-    std::cout << "Recipe: " << key << "\n";
+      return Error("Recipe array is empty");
     for (const auto &item: recipe_array) {
-      const auto *ingredient_ptr = Parser::JSON::
-        get_if_or_throw<std::string>(*item, "recipe." + key + " item");
-      std::cout << "recipe ingredient: " << *ingredient_ptr << "\n";
+      const std::string &ingredient = TRY(item->get<std::string>());
+      size_t ingredient_id = Config::ingredientsIds.lookup(ingredient);
+      if (ingredient_id == Config::ingredientsIds.size())
+        return Error("Ingredient not found");
+      recipeContent.push_back(ingredient_id);
     }
-    std::cout << "Time: " << std::get<double>(time->value) << "\n";
+    if (time_value <= 0)
+      return Error("Recipe time must be positive");
+    Config::recipesByIds[recipe_id] = std::
+      make_pair(time_value, recipeContent);
+    return Nil{};
   }
 
-  void parse_recipe(const Parser::JSON &json)
+  auto parse(const std::filesystem::path &path) -> MaybeError
   {
-    const auto &recipe_object = json["\"recipes\""];
-    const auto *recipe_ptr = Parser::JSON::
-      get_if_or_throw<Parser::JsonObject>(recipe_object, "recipe");
-    for (const auto &[key, value]: *recipe_ptr) {
-      if (!std::holds_alternative<Parser::JsonObject>(value->value))
-        throw Parser::ParserException("Recipe must be an object");
-      Parser::JsonObject recipe_data = std::
-        get<Parser::JsonObject>(value->value);
-      parse_recipe_content(recipe_data, key);
+    JSON::JSONValue json = TRY(JSON::Parser::load_from_file(path));
+    JSON::JsonArray ingredients_array = TRY(json.get<JSON::JsonArray>(
+      "ingredient"
+      "s"));
+    JSON::
+      JsonObject recipes_object = TRY(json.get<JSON::JsonObject>("recipes"));
+
+    if (ingredients_array.empty())
+      return Error("Ingredients array is empty");
+    if (recipes_object.empty())
+      return Error("Recipes object is empty");
+
+    Config::ingredientsIds.setSize(ingredients_array.size());
+    for (const auto &item: ingredients_array) {
+      const auto ingredient = TRY(item->get<std::string>());
+      Config::ingredientsIds.add(ingredient);
     }
-  }
 
-  void parse_config(const std::filesystem::path &path)
-  {
-    Parser::JSON json(path);
-
-    parse_ingredient(json);
-    parse_recipe(json);
+    Config::recipesIds.setSize(recipes_object.size());
+    for (const auto &[key, value]: recipes_object)
+      TRY(parse_recipe(key, value));
+    return Nil{};
   }
 }  // namespace
 
 namespace Config {
-  [[gnu::constructor]]
-  void init()
+  auto init() -> MaybeError
   {
-    try {
-      parse_config("config.json");
-    } catch (const Parser::FileException &e) {
-      try {
-        parse_config("default.json");
-      } catch (const Parser::FileException &nested_e) {
-        std::cerr << nested_e.what() << "\n";
-        exit(EXIT_FAILURE);
-      }
-    } catch (const Parser::ParserException &e) {
-      std::cerr << e.what() << "\n";
-      exit(EXIT_FAILURE);
-    } catch (const std::exception &e) {
-      std::cerr << "An error occurred: " << e.what() << "\n";
-      exit(EXIT_FAILURE);
-    }
+    auto config_parsing = parse("config.json");
+    if (config_parsing.is_error())
+      MUST(parse("default.json"), "Default.json not found or invalid");
+    return {};
   }
 }  // namespace Config

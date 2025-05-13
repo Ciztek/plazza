@@ -15,12 +15,25 @@ namespace Data {
       if (!_data.empty())
         throw std::runtime_error("Array already initialized");
       _data.resize(size);
+      _used = 0;
     }
 
-    FixedArray(const FixedArray &) = default;
-    FixedArray(FixedArray &&) = default;
-    auto operator=(const FixedArray &) -> FixedArray & = default;
-    auto operator=(FixedArray &&) -> FixedArray & = default;
+    // Use _used to know how many are currently used
+    [[nodiscard]] auto used() const -> size_t
+    {
+      if (_data.empty())
+        throw std::runtime_error("Array not initialized");
+      return _used;
+    }
+
+    void add(const T &value)
+    {
+      if (_data.empty())
+        throw std::runtime_error("Array not initialized");
+      if (_used >= _data.size())
+        throw std::runtime_error("Array is full");
+      _data[_used++] = value;
+    }
 
     [[nodiscard]] auto size() const -> size_t
     {
@@ -33,8 +46,8 @@ namespace Data {
     {
       if (_data.empty())
         throw std::runtime_error("Array not initialized");
-      if (index >= _data.size())
-        throw std::out_of_range("Index out of range");
+      if (index >= _used)
+        throw std::out_of_range("Index out of used range");
       return _data[index];
     }
 
@@ -42,13 +55,14 @@ namespace Data {
     {
       if (_data.empty())
         throw std::runtime_error("Array not initialized");
-      if (index >= _data.size())
-        throw std::out_of_range("Index out of range");
+      if (index >= _used)
+        throw std::out_of_range("Index out of used range");
       return _data[index];
     }
 
   private:
     std::vector<T> _data;
+    size_t _used = 0;
   };
 
   class Ids : public FixedArray<std::string> {
@@ -67,10 +81,18 @@ namespace Data {
 
     [[nodiscard]] auto lookup(const std::string &value) const -> size_t
     {
-      for (size_t i = 0; i < this->size(); ++i)
+      for (size_t i = 0; i < this->used(); ++i)
         if (this->operator[](i) == value)
           return i;
       throw std::runtime_error("Not found");
+    }
+
+    void add(const std::string &value)
+    {
+      for (size_t i = 0; i < this->used(); ++i)
+        if (this->operator[](i) == value)
+          return;
+      this->FixedArray<std::string>::add(value);
     }
 
     friend auto operator<<(std::ostream &os, const Ids &ids) -> std::ostream &
@@ -84,7 +106,6 @@ namespace Data {
     }
   };
 
-  using Recipe = std::pair<size_t, std::vector<size_t>>;
-  using RecipeBook = std::map<size_t, Recipe>;
+  using RecipeBook = std::map<size_t, std::pair<size_t, std::vector<size_t>>>;
 
 }  // namespace Data
