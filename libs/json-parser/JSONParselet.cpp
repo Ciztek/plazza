@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "JSONParser.hpp"
 #include "StringMacros.h"
 
@@ -115,6 +117,7 @@ namespace JSON {
   auto Parser::parse_object() -> ErrorOr<JsonObject>
   {
     JsonObject obj;
+    std::vector<std::string> keys;
 
     MUST(_str[_pos++] == '{', "invalid object start");
     consume_whitespace();
@@ -125,6 +128,9 @@ namespace JSON {
     for (;;) {
       consume_whitespace();
       auto key = TRY(parse_string());
+      if (std::find(keys.begin(), keys.end(), key) != keys.end())
+        return Error("duplicate key in object");
+      keys.push_back(key);
       consume_whitespace();
       MUST(_str[_pos++] == ':', "expected colon in object");
       consume_whitespace();
