@@ -30,7 +30,7 @@ namespace Config {
     const std::shared_ptr<JSON::JSONValue> &value) -> MaybeError
   {
     _recipesIds.add(key);
-    size_t recipe_id = _recipesIds.lookup(key);
+    size_t recipe_id = TRY(_recipesIds.lookup(key));
 
     std::vector<size_t> recipeContent;
 
@@ -48,7 +48,7 @@ namespace Config {
 
     for (const auto &item: recipe_array) {
       const std::string &ingredient = TRY(item->get<std::string>());
-      size_t ingredient_id = _ingredientsIds.lookup(ingredient);
+      size_t ingredient_id = TRY(_ingredientsIds.lookup(ingredient));
       if (ingredient_id == _ingredientsIds.size())
         return Error("Ingredient not found");
       recipeContent.push_back(ingredient_id);
@@ -82,6 +82,9 @@ namespace Config {
     _ingredientsIds.setSize(ingredients_array.size());
     for (const auto &item: ingredients_array) {
       const auto ingredient = TRY(item->get<std::string>());
+      auto id = _ingredientsIds.lookup(ingredient);
+      if (id.has_value())
+        return Error("Duplicate ingredient found");
       _ingredientsIds.add(ingredient);
     }
 
