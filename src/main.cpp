@@ -2,9 +2,6 @@
 
 #include "Config.hpp"
 #include "ErrorOr.hpp"
-#include "Logger.hpp"
-
-LogLevel LogStream::FILTER = LogLevel::DEBUG;
 
 namespace {
 
