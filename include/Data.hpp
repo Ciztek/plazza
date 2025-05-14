@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include "ErrorOr.hpp"
+
 namespace Data {
   template <typename T> class FixedArray {
   public:
@@ -79,12 +81,13 @@ namespace Data {
       return this->operator[](index);
     }
 
-    [[nodiscard]] auto lookup(const std::string &value) const -> size_t
+    [[nodiscard]] auto
+    lookup(const std::string &value) const -> ErrorOr<size_t>
     {
       for (size_t i = 0; i < this->used(); ++i)
         if (this->operator[](i) == value)
           return i;
-      throw std::runtime_error("Not found");
+      return Error("Not found");
     }
 
     void add(const std::string &value)
