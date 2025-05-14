@@ -47,7 +47,10 @@
 
       hooks = {
         alejandra.enable = true;
-        clang-format.enable = true;
+        clang-format = {
+          enable = true;
+          types_or = lib.mkForce ["c" "c++"];
+        };
 
         align-slashes = {
           enable = true;
