@@ -4,7 +4,7 @@ AlignEscapedNewlines: DontAlign
 AlignOperands: DontAlign
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortEnumsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: None
+AllowShortFunctionsOnASingleLine: Empty
 AlwaysBreakBeforeMultilineStrings: true
 BinPackArguments: false
 BinPackParameters: false
