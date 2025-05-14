@@ -33,8 +33,8 @@ namespace Config {
     File() = default;
     ~File() = default;
 
-    auto
-    parse_recipe(const std::string &key, JSON::JSONValue &value) -> MaybeError;
+    auto parse_recipe(const std::string &key, const JSON::JSONValue &value)
+      -> MaybeError;
     auto parse(const std::filesystem::path &path) -> MaybeError;
 
     Data::Ids _ingredientsIds;
