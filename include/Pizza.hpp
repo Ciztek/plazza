@@ -15,7 +15,7 @@ namespace Plazza {
       XXL = 5
     };
 
-    enum class State : uint8_t {
+    enum State : uint8_t {
       UNUSED = 0,
       ASSIGNED = 1,
       COOKING = 2,
