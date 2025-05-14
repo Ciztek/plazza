@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <vector>
 
+#include "ErrorOr.hpp"
 #include "Pizza.hpp"
 
 namespace Plazza {
@@ -19,7 +20,7 @@ namespace Plazza {
     auto operator=(const Kitchen &) -> Kitchen & = delete;
     auto operator=(Kitchen &&) -> Kitchen & = delete;
 
-    void cook(Pizza &pizza);
+    auto cook(Pizza &pizza) -> MaybeError;
 
     ~Kitchen() = default;
 
@@ -30,8 +31,8 @@ namespace Plazza {
       ~Fridge() = default;
 
       [[nodiscard]] auto get(size_t ing) const -> uint8_t;
-      void consume(size_t ing, uint8_t amount = 1);
-      void refill(size_t ing, uint8_t amount = MAX_CAPACITY);
+      auto consume(size_t ing, uint8_t amount = 1) -> MaybeError;
+      auto refill(size_t ing, uint8_t amount = MAX_CAPACITY) -> MaybeError;
 
       static constexpr uint8_t MAX_CAPACITY = 5;
 
