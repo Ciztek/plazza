@@ -14,21 +14,17 @@ LD := $(CC)
 AR ?= ar
 RM ?= rm --force
 
-CFLAGS := -std=c2x -pedantic
-CFLAGS += -iquote $/libs -iquote $/include
-CFLAGS += $(shell cat $/warning_flags.txt)
-
 CXXFLAGS := -std=c++20
 CXXFLAGS += -iquote $/libs -iquote $/include
 CXXFLAGS += $(shell cat $/warning_flags.txt)
 
-CFLAGS_release := -O2 -DNEBUG -fomit-frame-pointer
-CFLAGS_bonus := $(CFLAGS_release) -DBONUS=1 -fanalyzer -DDEBUG_MODE
-CFLAGS_bonus += -g3 -fsanitize=address,leak,undefined
-CFLAGS_debug := -g3 -fsanitize=address,leak,undefined -DDEBUG_MODE=1
-CFLAGS_tests := --coverage -g3
+CXXFLAGS_release := -O2 -fomit-frame-pointer
 
-CXXFLAGS_release := -O2 -DNEBUG -fomit-frame-pointer
+# Fix false positive of `-Wfree-nonheap-object`
+# caused by `[[nodiscard]] auto get() const -> ErrorOr<T>` in JSONValue.hpp
+# See: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108088
+CXXFLAGS_release += -fno-inline-small-functions
+
 CXXFLAGS_bonus := $(CXXFLAGS_release) -DBONUS=1 -fanalyzer -DDEBUG_MODE
 CXXFLAGS_bonus += -g3 -fsanitize=address,leak,undefined
 CXXFLAGS_debug := -g3 -fsanitize=address,leak,undefined -DDEBUG_MODE=1
