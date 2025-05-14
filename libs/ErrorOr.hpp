@@ -1,11 +1,10 @@
 #pragma once
 
-#include <ostream>
 #include <string>
 #include <utility>
 #include <variant>
 
-#include "Logger.hpp"
+#include "logging/Logger.hpp"
 
 class [[nodiscard]] Error {
 public:
