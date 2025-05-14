@@ -1,4 +1,5 @@
 #include "Config.hpp"
+#include "ErrorOr.hpp"
 
 #include "Kitchen.hpp"
 
@@ -35,14 +36,17 @@ auto Kitchen::Fridge::consume(size_t ing, uint8_t amount) -> MaybeError
 {
   auto &val = _stock[ing];
   uint8_t current = val.load(std::memory_order_acquire);
-  if (current < amount)
-    return Error("Not enough ingredients in the fridge");
-  while (!val.compare_exchange_weak(
+
+  if (amount == 0)
+    return Error("Amount must be greater than 0");
+  do {
+    if (current < amount)
+      return Error("Not enough ingredients in the fridge");
+  } while (!val.compare_exchange_weak(
     current,
     current - amount,
-    std::memory_order_release,
-    std::memory_order_acquire))
-    ;  // Retry till sucess
+    std::memory_order_acquire,
+    std::memory_order_relaxed));
   return Nil{};
 }
 
