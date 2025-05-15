@@ -96,4 +96,22 @@ namespace Data {
 
   using RecipeBook = std::map<size_t, std::pair<size_t, std::vector<size_t>>>;
 
+  template <typename T> class Singleton {
+  public:
+    static auto instance() -> T &
+    {
+      static T instance;
+      return instance;
+    }
+
+    // Delete copy and move constructors and assign operators
+    Singleton(Singleton const &) = delete;
+    Singleton(Singleton &&) = delete;
+    auto operator=(Singleton const &) -> Singleton & = delete;
+    auto operator=(Singleton &&) -> Singleton & = delete;
+
+  protected:
+    Singleton() = default;
+    virtual ~Singleton() = default;
+  };
 }  // namespace Data
