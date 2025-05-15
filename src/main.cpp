@@ -1,19 +1,22 @@
 #include <cstdlib>
+#include <span>
 
 #include "Config.hpp"
 #include "ErrorOr.hpp"
 
 namespace {
 
-  auto wrappedMain(int, char *[]) -> MaybeError
+  auto wrappedMain(int argc, std::span<char *> args) -> MaybeError
   {
     TRY(CONFIG_FILE.init());
+    TRY(CONFIG_ARGS.init(argc, args));
     return Nil{};
   }
 }  // namespace
 
 auto main(int argc, char *argv[]) -> int
 {
-  if (wrappedMain(argc, argv).is_error())
+  std::span<char *> args(argv, argv + argc);
+  if (wrappedMain(argc, args).is_error())
     return EXIT_TEK;
 }
