@@ -10,28 +10,19 @@
 namespace Data {
   template <typename T> class FixedArray {
   public:
-    FixedArray() = default;
-
-    void setSize(size_t size)
+    explicit FixedArray(size_t size) : _data(size), _used(0)
     {
-      if (!_data.empty())
-        throw std::runtime_error("Array already initialized");
-      _data.resize(size);
-      _used = 0;
+      if (size == 0)
+        throw std::runtime_error("FixedArray size cannot be 0");
     }
 
-    // Use _used to know how many are currently used
     [[nodiscard]] auto used() const -> size_t
     {
-      if (_data.empty())
-        throw std::runtime_error("Array not initialized");
       return _used;
     }
 
     void add(const T &value)
     {
-      if (_data.empty())
-        throw std::runtime_error("Array not initialized");
       if (_used >= _data.size())
         throw std::runtime_error("Array is full");
       _data[_used++] = value;
@@ -39,15 +30,11 @@ namespace Data {
 
     [[nodiscard]] auto size() const -> size_t
     {
-      if (_data.empty())
-        throw std::runtime_error("Array not initialized");
       return _data.size();
     }
 
     [[nodiscard]] auto operator[](size_t index) const -> const T &
     {
-      if (_data.empty())
-        throw std::runtime_error("Array not initialized");
       if (index >= _used)
         throw std::out_of_range("Index out of used range");
       return _data[index];
@@ -55,8 +42,6 @@ namespace Data {
 
     [[nodiscard]] auto operator[](size_t index) -> T &
     {
-      if (_data.empty())
-        throw std::runtime_error("Array not initialized");
       if (index >= _used)
         throw std::out_of_range("Index out of used range");
       return _data[index];
@@ -64,12 +49,12 @@ namespace Data {
 
   private:
     std::vector<T> _data;
-    size_t _used = 0;
+    size_t _used;
   };
 
   class Ids : public FixedArray<std::string> {
   public:
-    Ids() = default;
+    explicit Ids(size_t size) : FixedArray(size) {}
 
     Ids(const Ids &) = delete;
     Ids(Ids &&) = delete;
@@ -101,9 +86,9 @@ namespace Data {
     friend auto operator<<(std::ostream &os, const Ids &ids) -> std::ostream &
     {
       os << "[\n";
-      for (size_t i = 0; i < ids.size(); ++i)
+      for (size_t i = 0; i < ids.used(); ++i)
         os << "  " << i << ": " << ids.lookup(i)
-           << (i != ids.size() - 1 ? "," : "") << "\n";
+           << (i != ids.used() - 1 ? "," : "") << "\n";
       os << "]";
       return os;
     }
