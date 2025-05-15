@@ -1,11 +1,12 @@
 #include <cstdlib>
 #include <span>
 
+#include "ErrorOr.hpp"
+
 #include "ArgParser.hpp"
 #include "Kitchen.hpp"
 #include "KitchenCatalog.hpp"
-
-#include "ErrorOr.hpp"
+#include "Repl.hpp"
 
 namespace {
   constexpr int EXIT_TEK = 84;
@@ -22,6 +23,9 @@ namespace {
     Pizza p(TRY(catalog.recipes.at_value("margarita")), Pizza::XL);
 
     Log::info << p;
+
+    Plazza::Repl repl;
+    TRY(repl.run());
     return {};
   }
 
