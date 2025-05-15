@@ -37,8 +37,8 @@ namespace Config {
       -> MaybeError;
     auto parse(const std::filesystem::path &path) -> MaybeError;
 
-    Data::Ids _ingredientsIds;
-    Data::Ids _recipesIds;
+    std::unique_ptr<Data::Ids> _ingredientsIds;
+    std::unique_ptr<Data::Ids> _recipesIds;
     Data::RecipeBook _recipesByIds;
   };
 }  // namespace Config
