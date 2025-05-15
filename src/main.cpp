@@ -5,9 +5,10 @@
 
 namespace {
 
-  auto wrappedMain(int, char *[]) -> MaybeError
+  auto wrappedMain(int argc, char *argv[]) -> MaybeError
   {
     TRY(CONFIG_FILE.init());
+    TRY(CONFIG_ARGS.init(argc, argv));
     return Nil{};
   }
 }  // namespace
