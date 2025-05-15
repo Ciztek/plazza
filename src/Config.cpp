@@ -1,4 +1,5 @@
 #include "Config.hpp"
+#include <memory>
 #include "json-parser/JSONParser.hpp"
 #include "json-parser/JSONValue.hpp"
 
@@ -12,12 +13,12 @@ namespace Config {
 
   auto File::getIngredientsIds() const -> const Data::Ids &
   {
-    return _ingredientsIds;
+    return *_ingredientsIds;
   }
 
   auto File::getRecipesIds() const -> const Data::Ids &
   {
-    return _recipesIds;
+    return *_recipesIds;
   }
 
   auto File::getRecipesByIds() const -> const Data::RecipeBook &
@@ -33,8 +34,8 @@ namespace Config {
     const std::string &key,
     const std::shared_ptr<JSON::JSONValue> &value) -> MaybeError
   {
-    _recipesIds.add(key);
-    size_t recipe_id = TRY(_recipesIds.lookup(key));
+    _recipesIds->add(key);
+    size_t recipe_id = TRY(_recipesIds->lookup(key));
 
     std::vector<size_t> recipeContent;
 
@@ -52,8 +53,8 @@ namespace Config {
 
     for (const auto &item: recipe_array) {
       const std::string &ingredient = TRY(item->get<std::string>());
-      size_t ingredient_id = TRY(_ingredientsIds.lookup(ingredient));
-      if (ingredient_id == _ingredientsIds.size())
+      size_t ingredient_id = TRY(_ingredientsIds->lookup(ingredient));
+      if (ingredient_id == _ingredientsIds->size())
         return Error("Ingredient not found");
       recipeContent.push_back(ingredient_id);
     }
@@ -83,16 +84,17 @@ namespace Config {
     if (recipes_object.empty())
       return Error("Recipes object is empty");
 
-    _ingredientsIds.setSize(ingredients_array.size());
+    _ingredientsIds = std::make_unique<Data::Ids>(ingredients_array.size());
+    _recipesIds = std::make_unique<Data::Ids>(recipes_object.size());
+
     for (const auto &item: ingredients_array) {
       const auto ingredient = TRY(item->get<std::string>());
-      auto id = _ingredientsIds.lookup(ingredient);
+      auto id = _ingredientsIds->lookup(ingredient);
       if (id.has_value())
         return Error("Duplicate ingredient found");
-      _ingredientsIds.add(ingredient);
+      _ingredientsIds->add(ingredient);
     }
 
-    _recipesIds.setSize(recipes_object.size());
     for (const auto &[key, value]: recipes_object)
       TRY(parse_recipe(key, value));
 
