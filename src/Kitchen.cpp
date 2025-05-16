@@ -3,9 +3,7 @@
 
 #include "Kitchen.hpp"
 
-using namespace Plazza;
-
-auto Kitchen::cook(Pizza &pizza) -> MaybeError
+auto Plazza::Kitchen::cook(Pizza &pizza) -> MaybeError
 {
   auto recipe = CONFIG_FILE.getRecipesByIds().find(pizza.getType());
   if (recipe == CONFIG_FILE.getRecipesByIds().end())
@@ -19,7 +17,7 @@ auto Kitchen::cook(Pizza &pizza) -> MaybeError
   return Nil{};
 }
 
-Kitchen::Fridge::Fridge()
+Plazza::Kitchen::Fridge::Fridge()
 {
   _stock = std::
     vector<std::atomic<uint8_t>>(CONFIG_FILE.getIngredientsIds().size());
@@ -27,12 +25,12 @@ Kitchen::Fridge::Fridge()
     ingredient.store(MAX_CAPACITY, std::memory_order_release);
 }
 
-auto Kitchen::Fridge::get(size_t ing) const -> uint8_t
+auto Plazza::Kitchen::Fridge::get(size_t ing) const -> uint8_t
 {
   return _stock[ing].load(std::memory_order_acquire);
 }
 
-auto Kitchen::Fridge::consume(size_t ing, uint8_t amount) -> MaybeError
+auto Plazza::Kitchen::Fridge::consume(size_t ing, uint8_t amount) -> MaybeError
 {
   auto &val = _stock[ing];
   uint8_t current = val.load(std::memory_order_acquire);
@@ -50,7 +48,7 @@ auto Kitchen::Fridge::consume(size_t ing, uint8_t amount) -> MaybeError
   return Nil{};
 }
 
-auto Kitchen::Fridge::refill(size_t ing, uint8_t amount) -> MaybeError
+auto Plazza::Kitchen::Fridge::refill(size_t ing, uint8_t amount) -> MaybeError
 {
   _stock[ing].store(amount, std::memory_order_release);
   return Nil{};
