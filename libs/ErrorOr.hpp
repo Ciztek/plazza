@@ -20,7 +20,19 @@ public:
     Log::log(LogLevel::CRIT, file, line) << message;
   }
 
+  [[nodiscard]] auto what() const -> const std::string &
+  {
+    return message;
+  }
+
+  [[nodiscard]] auto c_str() const -> const char *
+  {
+    return message.c_str();
+  }
+
 #define Error(msg) Error(msg, __FILE__, __LINE__)
+
+private:
   std::string message;
 };
 
