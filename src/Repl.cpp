@@ -19,7 +19,8 @@ constexpr auto HELP =
    "  pizza ordering\n");
 
 constexpr auto ASCII_ART =
-  R"(    ____                                _            _   ____
+  R"(
+    ____                                _            _   ____
    / __ \                              | |          | | |___ \
   | |  | |_   _____ _ __ ___ ___   ___ | | _____  __| |   __) |
   | |  | \ \ / / _ \ '__/ __/ _ \ / _ \| |/ / _ \/ _` |  |__ <
@@ -34,22 +35,20 @@ constexpr auto ASCII_ART =
                       |_|                      |___/|_|
  )";
 
-using namespace Plazza;
-
-auto Repl::help() -> MaybeError
+auto Plazza::Repl::help() -> MaybeError
 {
   (void)_command;
   std::cout << HELP;
   return Nil{};
 }
 
-auto Repl::quit() -> MaybeError
+auto Plazza::Repl::quit() -> MaybeError
 {
   Repl::running = false;
   return Nil{};
 }
 
-auto Repl::status() -> MaybeError
+auto Plazza::Repl::status() -> MaybeError
 {
   (void)_command;
   std::cout << "Kitchen status:\n";
@@ -58,7 +57,7 @@ auto Repl::status() -> MaybeError
 
 struct Order {
   size_t type;
-  Pizza::Size size;
+  Plazza::Pizza::Size size;
 };
 
 namespace {
@@ -81,15 +80,15 @@ namespace {
 
   constexpr auto AVAILABLE_SIZES = std::
     array<std::string, 5>{"S", "M", "L", "XL", "XXL"};
-  constexpr auto SIZE_TRANSLATES = std::array<Pizza::Size, 5>{
-    Pizza::Size::S,
-    Pizza::Size::M,
-    Pizza::Size::L,
-    Pizza::Size::XL,
-    Pizza::Size::XXL};
+  constexpr auto SIZE_TRANSLATES = std::array<Plazza::Pizza::Size, 5>{
+    Plazza::Pizza::Size::S,
+    Plazza::Pizza::Size::M,
+    Plazza::Pizza::Size::L,
+    Plazza::Pizza::Size::XL,
+    Plazza::Pizza::Size::XXL};
 }  // namespace
 
-auto Repl::order() -> MaybeError
+auto Plazza::Repl::order() -> MaybeError
 {
   std::vector<Order> orders;
   size_t quantity = 0;
@@ -125,7 +124,7 @@ auto Repl::order() -> MaybeError
   return Nil{};
 }
 
-auto Repl::runCommand() -> MaybeError
+auto Plazza::Repl::runCommand() -> MaybeError
 {
   if (_command == "help")
     return help();
@@ -140,7 +139,7 @@ auto Repl::runCommand() -> MaybeError
   return Nil{};
 }
 
-auto Repl::run() -> MaybeError
+auto Plazza::Repl::run() -> MaybeError
 {
   Repl::running = true;
 
