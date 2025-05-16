@@ -20,7 +20,19 @@ public:
     Log::log(LogLevel::CRIT, file, line) << message;
   }
 
+  [[nodiscard]] auto what() const -> const std::string &
+  {
+    return message;
+  }
+
+  [[nodiscard]] auto c_str() const -> const char *
+  {
+    return message.c_str();
+  }
+
 #define Error(msg) Error(msg, __FILE__, __LINE__)
+
+private:
   std::string message;
 };
 
@@ -70,6 +82,12 @@ public:
     return std::holds_alternative<Error>(result);
   }
 
+  [[nodiscard]]
+  auto operator!() const -> bool
+  {
+    return is_error();
+  }
+
 private:
   std::variant<T, Error> result;
 };
@@ -83,17 +101,6 @@ using MaybeError = ErrorOr<Nil>;
         auto&& _try_tmp = (expr);                                              \
         if (_try_tmp.is_error())                                               \
             return _try_tmp.error();                                           \
-        std::move(_try_tmp.value());                                           \
-    })
-
-#define TRY_FINALLY(expr, finally_expr)                                        \
-    ({                                                                         \
-        auto&& _try_tmp = (expr);                                              \
-        if (_try_tmp.is_error()) {                                             \
-            (finally_expr);                                                    \
-            return _try_tmp.error();                                           \
-        }                                                                      \
-        (finally_expr);                                                        \
         std::move(_try_tmp.value());                                           \
     })
 

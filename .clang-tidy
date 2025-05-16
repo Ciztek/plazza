@@ -22,6 +22,7 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   misc-*,
   -misc-no-recursion,
+  -misc-use-internal-linkage,
   performance-*,
   portability-*,
   readability-*,
