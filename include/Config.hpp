@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <span>
 
 #include "Data.hpp"
 #include "ErrorOr.hpp"
@@ -40,7 +41,7 @@ namespace Config {
   class Args : public Data::Singleton<Args> {
   public:
     friend class Data::Singleton<Args>;
-    auto init(int argc, char *argv[]) -> MaybeError;
+    auto init(int argc, std::span<char *> args) -> MaybeError;
 
     [[nodiscard]] auto getMultiplier() const -> double;
     [[nodiscard]] auto getCook() const -> size_t;

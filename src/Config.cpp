@@ -101,17 +101,29 @@ namespace Config {
     return {};
   }
 
-  auto Args::init(int argc, char *argv[]) -> MaybeError
-  {
+  namespace {
+    auto validateIntArgs(char *arg) -> MaybeError
+    {
 #define IS_POS_NUMBER(str) (strspn(str, "0123456789") == strlen(str))
+      if (!IS_POS_NUMBER(arg))
+        return Error("Time parameter is not a positive intger");
+      if (std::stoul(arg, nullptr, 10) == 0)
+        return Error("Time parameter cannot be 0");
+#undef IS_POS_NUMBER
+      return Nil{};
+    }
+  }  // namespace
+
+  auto Args::init(int argc, std::span<char *> args) -> MaybeError
+  {
     if (argc != 4)
       return Error("Not enough arguments");
 
-    TRY([argv]() -> MaybeError {
+    TRY([args]() -> MaybeError {
       try {
         size_t idx;
-        double val = std::stod(argv[1], &idx);
-        if (idx != strlen(argv[1]))
+        double val = std::stod(args[1], &idx);
+        if (idx != strlen(args[1]))
           return Error("Leftover after multiplier arg");
         if (val < 0)
           return Error("Multiplier is negative");
@@ -122,27 +134,14 @@ namespace Config {
       return Nil{};
     }());
 
-    TRY([argv]() -> MaybeError {
-      if (!IS_POS_NUMBER(argv[2]))
-        return Error("Cook parameter is not a positive intger");
-      if (std::stoul(argv[2], nullptr, 10) == 0)
-        return Error("Cook parameter cannot be 0");
-      return Nil{};
-    }());
-
-    TRY([argv]() -> MaybeError {
-      if (!IS_POS_NUMBER(argv[3]))
-        return Error("Time parameter is not a positive intger");
-      if (std::stoul(argv[3], nullptr, 10) == 0)
-        return Error("Time parameter cannot be 0");
-      return Nil{};
-    }());
+    TRY(validateIntArgs(args[2]));
+    TRY(validateIntArgs(args[3]));
 
 #undef IS_POS_NUMBER
 
-    _multiplier = std::stod(argv[1], nullptr);
-    _cook = std::stoul(argv[2], nullptr, 10);
-    _time = std::chrono::milliseconds(std::stoul(argv[3], nullptr, 10));
+    _multiplier = std::stod(args[1], nullptr);
+    _cook = std::stoul(args[2], nullptr, 10);
+    _time = std::chrono::milliseconds(std::stoul(args[3], nullptr, 10));
     return {};
   }
 
