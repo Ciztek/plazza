@@ -5,37 +5,40 @@
 
 namespace JSON {
 
-  static auto
-  parse_fraction(std::string &str, const std::string &raw_data, size_t &pos)
-    -> MaybeError
-  {
-    if (pos < raw_data.size() && raw_data[pos] != '.')
-      return {};
-    str += raw_data[pos++];
-    if (pos >= raw_data.size() || !isdigit(raw_data[pos]))
-      return Error("Fractional part must have digits");
-    while (pos < raw_data.size() && isdigit(raw_data[pos]))
+  namespace {
+    auto
+    parse_fraction(std::string &str, const std::string &raw_data, size_t &pos)
+      -> MaybeError
+    {
+      if (pos < raw_data.size() && raw_data[pos] != '.')
+        return {};
       str += raw_data[pos++];
-    return {};
-  }
-
-  static auto
-  parse_exponent(std::string &str, const std::string &raw_data, size_t &pos)
-    -> MaybeError
-  {
-    if (pos < raw_data.size()
-        && (raw_data[pos] == 'e' || raw_data[pos] == 'E')) {
-      str += raw_data[pos++];
-      if (pos < raw_data.size()
-          && (raw_data[pos] == '+' || raw_data[pos] == '-'))
-        str += raw_data[pos++];
       if (pos >= raw_data.size() || !isdigit(raw_data[pos]))
-        return Error("Exponent must have digits");
+        return Error("Fractional part must have digits");
       while (pos < raw_data.size() && isdigit(raw_data[pos]))
         str += raw_data[pos++];
+      return {};
     }
-    return {};
-  }
+
+    auto
+    parse_exponent(std::string &str, const std::string &raw_data, size_t &pos)
+      -> MaybeError
+    {
+      if (pos < raw_data.size()
+          && (raw_data[pos] == 'e' || raw_data[pos] == 'E')) {
+        str += raw_data[pos++];
+        if (pos < raw_data.size()
+            && (raw_data[pos] == '+' || raw_data[pos] == '-'))
+          str += raw_data[pos++];
+        if (pos >= raw_data.size() || !isdigit(raw_data[pos]))
+          return Error("Exponent must have digits");
+        while (pos < raw_data.size() && isdigit(raw_data[pos]))
+          str += raw_data[pos++];
+      }
+      return {};
+    }
+
+  }  // namespace
 
   auto Parser::parse_number() -> ErrorOr<JSONValue>
   {
@@ -128,7 +131,7 @@ namespace JSON {
     for (;;) {
       consume_whitespace();
       auto key = TRY(parse_string());
-      if (std::find(keys.begin(), keys.end(), key) != keys.end())
+      if (std::ranges::find(keys, key) != keys.end())
         return Error("duplicate key in object");
       keys.push_back(key);
       consume_whitespace();
@@ -149,41 +152,44 @@ namespace JSON {
     return obj;
   }
 
-  static auto
-  parse_escape(std::string &str, const std::string &raw_data, size_t &pos)
-    -> MaybeError
-  {
-    static const std::string hex_chars = "0123456789abcdefABCDEF";
+  namespace {
+    auto
+    parse_escape(std::string &str, const std::string &raw_data, size_t &pos)
+      -> MaybeError
+    {
+      static const std::string hex_chars = "0123456789abcdefABCDEF";
 
-    ++pos;
-    MUST(pos < raw_data.size(), "unexpected end of string");
-    switch (raw_data[pos]) {
+      ++pos;
+      MUST(pos < raw_data.size(), "unexpected end of string");
+      switch (raw_data[pos]) {
 
 #define MAP(in, out) case in: str += (out); break
-      MAP('"', '"');
-      MAP('\\', '\\');
-      MAP('/', '/');
-      MAP('b', '\b');
-      MAP('f', '\f');
-      MAP('n', '\n');
-      MAP('r', '\r');
-      MAP('t', '\t');
+        MAP('"', '"');
+        MAP('\\', '\\');
+        MAP('/', '/');
+        MAP('b', '\b');
+        MAP('f', '\f');
+        MAP('n', '\n');
+        MAP('r', '\r');
+        MAP('t', '\t');
 #undef MAP
-      case 'u':
-        ++pos;
-        MUST(pos + 4 < raw_data.size(), "invalid unicode sequence in string");
-        MUST(
-          raw_data.substr(pos, 4).find_first_not_of(hex_chars)
-            == std::string::npos,
-          "invalid unicode sequence in string");
-        str += "\\u" + raw_data.substr(pos, 4);
-        pos += 3;  // 3 because we will increment pos in the for loop
-        break;
-      default:
-        return Error("invalid escape character in string");
+        case 'u':
+          ++pos;
+          MUST(
+            pos + 4 < raw_data.size(), "invalid unicode sequence in string");
+          MUST(
+            raw_data.substr(pos, 4).find_first_not_of(hex_chars)
+              == std::string::npos,
+            "invalid unicode sequence in string");
+          str += "\\u" + raw_data.substr(pos, 4);
+          pos += 3;  // 3 because we will increment pos in the for loop
+          break;
+        default:
+          return Error("invalid escape character in string");
+      }
+      return {};
     }
-    return {};
-  }
+  }  // namespace
 
   auto Parser::parse_string() -> ErrorOr<std::string>
   {

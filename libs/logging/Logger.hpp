@@ -1,18 +1,19 @@
 #pragma once
 
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <ctime>
 #include <sstream>
 
-enum class LogLevel {
+enum class LogLevel : std::uint8_t {
   DEBUG,
   INFO,
   WARN,
   CRIT
 };
 
-enum class LogType {
+enum class LogType : std::uint8_t {
   JSON,
   SIMPLE
 };
