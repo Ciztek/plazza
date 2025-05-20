@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "ErrorOr.hpp"
+
 namespace IPC {
   class SharedMemory {
   public:
@@ -14,11 +16,12 @@ namespace IPC {
     SharedMemory(key_t key);
     ~SharedMemory();
 
-    void write(const void *data, size_t size, size_t offset = 0);
-    void read(void *buffer, size_t size, size_t offset = 0) const;
+    auto write(const void *data, size_t size, size_t offset = 0) -> MaybeError;
+    auto
+    read(void *buffer, size_t size, size_t offset = 0) const -> MaybeError;
 
     void detach();
-    void attach();
+    auto attach() -> MaybeError;
     void remove();
     [[nodiscard]] auto isValid() const -> bool;
     void clear();

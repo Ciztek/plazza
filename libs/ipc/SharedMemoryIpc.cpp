@@ -1,6 +1,7 @@
-#include "SharedMemoryIpc.hpp"
-
 #include <stdexcept>
+
+#include "ErrorOr.hpp"
+#include "SharedMemoryIpc.hpp"
 
 namespace IPC {
   SharedMemory::SharedMemory(key_t key)
@@ -25,18 +26,22 @@ namespace IPC {
     shmctl(shm_id, IPC_RMID, nullptr);
   }
 
-  void SharedMemory::write(const void *data, size_t size, size_t offset)
+  auto SharedMemory::write(const void *data, size_t size, size_t offset)
+    -> MaybeError
   {
     if (offset + size > SEGMENT_SIZE)
-      throw std::out_of_range("Write exceeds shared memory segment size");
+      return Error("Write exceeds shared memory segment size");
     std::memcpy(shm_addr + offset, data, size);
+    return Nil{};
   }
 
-  void SharedMemory::read(void *buffer, size_t size, size_t offset) const
+  auto SharedMemory::read(void *buffer, size_t size, size_t offset) const
+    -> MaybeError
   {
     if (offset + size > SEGMENT_SIZE)
-      throw std::out_of_range("Read exceeds shared memory segment size");
+      return Error("Read exceeds shared memory segment size");
     std::memcpy(buffer, shm_addr + offset, size);
+    return Nil{};
   }
 
   void SharedMemory::detach()
@@ -47,18 +52,19 @@ namespace IPC {
     }
   }
 
-  void SharedMemory::attach()
+  MaybeError SharedMemory::attach()
   {
     if (!attached) {
       shm_addr = static_cast<char *>(shmat(shm_id, nullptr, 0));
       if (
         shm_addr
-        == reinterpret_cast<char *>(
-          -1)) {  // NOLINT(performance-no-int-to-ptr)
-        throw std::runtime_error("Failed to attach shared memory segment");
+        == reinterpret_cast<char *>(  // NOLINT(performance-no-int-to-ptr)
+          -1)) {
+        return Error("Failed to attach shared memory segment");
       }
       attached = true;
     }
+    return Nil{};
   }
 
   void SharedMemory::remove()
