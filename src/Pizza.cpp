@@ -11,18 +11,25 @@ namespace {
     return (1U << bits) - 1U;
   }
 
+  enum Field : uint8_t {
+    STAT = 0,
+    SIZE,
+    LEFT,
+    TYPE,
+  };
+
   struct FieldEntry {
-    const char *name;
+    Field name;
     uint8_t bits;
     uint8_t shift;
   };
 
   constexpr auto Fields = []() {
-    constexpr std::array<std::pair<const char *, uint8_t>, 4> fieldsInfo = {{
-      {"STAT", 2},
-      {"SIZE", 3},
-      {"LEFT", 3},
-      {"TYPE", 8},
+    constexpr std::array<std::pair<Field, uint8_t>, 4> fieldsInfo = {{
+      {STAT, 2},
+      {SIZE, 3},
+      {LEFT, 3},
+      {TYPE, 8},
     }};
 
     std::array<FieldEntry, fieldsInfo.size()> fields{};
@@ -37,27 +44,27 @@ namespace {
     return fields;
   }();
 
-  constexpr auto findField(const char *name) -> FieldEntry
+  constexpr auto findField(Field name) -> FieldEntry
   {
     for (auto Field: Fields)
-      if (strcmp(Field.name, name) == 0)
+      if (Field.name == name)
         return Field;
     throw "Unknown field name";
   }
 
-  constexpr auto getMask(const char *name) -> uint16_t
+  constexpr auto getMask(Field name) -> uint16_t
   {
     auto field = findField(name);
     return FIELD_MASK(field.bits) << field.shift;
   }
 
-  constexpr auto encodeField(uint16_t value, const char *name) -> uint16_t
+  constexpr auto encodeField(uint16_t value, Field name) -> uint16_t
   {
     auto field = findField(name);
     return (value & FIELD_MASK(field.bits)) << field.shift;
   }
 
-  constexpr auto decodeField(uint16_t value, const char *name) -> uint16_t
+  constexpr auto decodeField(uint16_t value, Field name) -> uint16_t
   {
     auto field = findField(name);
     return (value >> field.shift) & FIELD_MASK(field.bits);
@@ -71,8 +78,8 @@ Plazza::Pizza::Pizza(uint8_t type, Size size, State state)
 
 auto Plazza::Pizza::set(uint8_t type, Size size, State state) -> Pizza &
 {
-  uint16_t value = encodeField(type, "TYPE") | encodeField(size, "SIZE")
-    | encodeField(0, "LEFT") | encodeField(state, "STAT");
+  uint16_t value = encodeField(type, TYPE) | encodeField(size, SIZE)
+    | encodeField(0, LEFT) | encodeField(state, STAT);
 
   data.store(value, std::memory_order_release);
   return *this;
@@ -81,8 +88,7 @@ auto Plazza::Pizza::set(uint8_t type, Size size, State state) -> Pizza &
 auto Plazza::Pizza::setState(State newState) -> Pizza &
 {
   uint16_t current = raw();
-  uint16_t updated = (current & ~getMask("STAT"))
-    | encodeField(newState, "STAT");
+  uint16_t updated = (current & ~getMask(STAT)) | encodeField(newState, STAT);
 
   data.store(updated, std::memory_order_release);
   return *this;
@@ -101,15 +107,15 @@ auto Plazza::Pizza::raw() const -> uint16_t
 
 auto Plazza::Pizza::getType() const -> uint8_t
 {
-  return static_cast<uint8_t>(decodeField(raw(), "TYPE"));
+  return static_cast<uint8_t>(decodeField(raw(), TYPE));
 }
 
 auto Plazza::Pizza::getSize() const -> Pizza::Size
 {
-  return static_cast<Pizza::Size>(decodeField(raw(), "SIZE"));
+  return static_cast<Pizza::Size>(decodeField(raw(), SIZE));
 }
 
 auto Plazza::Pizza::getState() const -> Pizza::State
 {
-  return static_cast<State>(decodeField(raw(), "STAT"));
+  return static_cast<State>(decodeField(raw(), STAT));
 }
