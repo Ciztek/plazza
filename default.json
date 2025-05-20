@@ -1,31 +1,31 @@
 {
-    "ingredients": [
-        "ChiefLove",
-        "Dough",
-        "Eggplant",
-        "GoatCheese",
-        "Gruyere",
-        "Ham",
-        "Mushrooms",
-        "Steak",
-        "Tomato"
-    ],
-    "recipes": {
-        "Margarita": {
-            "ingredients": ["Dough", "Tomato", "Gruyere"],
-            "cooking_time": 1000
-        },
-        "Regina": {
-            "ingredients": ["Dough", "Tomato", "Gruyere", "Ham", "Mushrooms"],
-            "cooking_time" : 2000
-        },
-        "Americana": {
-            "ingredients": ["Dough", "Tomato", "Gruyere", "Steak"],
-            "cooking_time" : 2000
-        },
-        "Fantasia": {
-            "ingredients": ["Dough", "Tomato", "Eggplant", "GoatCheese", "ChiefLove"],
-            "cooking_time": 4000
-        }
+  "ingredients": [
+    "chief love",
+    "dough",
+    "eggplant",
+    "goat cheese",
+    "gruyere",
+    "ham",
+    "mushrooms",
+    "steak",
+    "tomato"
+  ],
+  "recipes": {
+    "margarita": {
+      "ingredients": ["dough", "tomato", "gruyere"],
+      "cooking_time": 1000
+    },
+    "Regina": {
+      "ingredients": ["dough", "tomato", "gruyere", "ham", "mushrooms"],
+      "cooking_time" : 2000
+    },
+    "Americana": {
+      "ingredients": ["dough", "tomato", "gruyere", "steak"],
+      "cooking_time" : 2000
+    },
+    "Fantasia": {
+      "ingredients": ["dough", "tomato", "eggplant", "goat cheese", "chief love"],
+      "cooking_time": 4000
     }
+  }
 }
