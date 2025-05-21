@@ -10,7 +10,6 @@
 #define EXIT_TEK 84
 
 #define CONFIG_FILE Config::File::instance()
-#define CONFIG_ARGS Config::Args::instance()
 
 namespace Config {
 
@@ -38,21 +37,9 @@ namespace Config {
     Data::RecipeBook _recipesByIds;
   };
 
-  class Args : public Data::Singleton<Args> {
-  public:
-    friend class Data::Singleton<Args>;
-    auto init(int argc, std::span<char *> args) -> MaybeError;
-
-    [[nodiscard]] auto getMultiplier() const -> double;
-    [[nodiscard]] auto getCook() const -> size_t;
-    [[nodiscard]] auto getTime() const -> std::chrono::milliseconds;
-
-  private:
-    Args() = default;
-    ~Args() = default;
-
-    double _multiplier;
-    size_t _cook;
-    std::chrono::milliseconds _time;
+  struct Params {
+    double multiplier;
+    size_t cook;
+    std::chrono::milliseconds time;
   };
 }  // namespace Config
