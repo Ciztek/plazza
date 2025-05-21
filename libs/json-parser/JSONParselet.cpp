@@ -1,3 +1,4 @@
+#include "ErrorOr.hpp"
 #include "JSONParser.hpp"
 #include "StringMacros.h"
 
@@ -83,9 +84,9 @@ namespace JSON {
     return Error("invalid litteral");
   }
 
-  auto Parser::parse_array() -> ErrorOr<JsonArray>
+  auto Parser::parse_array() -> ErrorOr<JSONArray>
   {
-    JsonArray arr;
+    JSONArray arr;
 
     MUST(_str[_pos++] == '[', "invalid object start");
     consume_whitespace();
@@ -95,9 +96,7 @@ namespace JSON {
     }
     for (;;) {
       consume_whitespace();
-      auto val = TRY(eval());
-      consume_whitespace();
-      arr.push_back(std::make_shared<JSONValue>(val));
+      arr.push_back(TRY(eval()));
       consume_whitespace();
       if (_str[_pos] == ']')
         break;
@@ -112,9 +111,9 @@ namespace JSON {
     return arr;
   }
 
-  auto Parser::parse_object() -> ErrorOr<JsonObject>
+  auto Parser::parse_object() -> ErrorOr<JSONObject>
   {
-    JsonObject obj;
+    JSONObject obj;
 
     MUST(_str[_pos++] == '{', "invalid object start");
     consume_whitespace();
@@ -128,7 +127,7 @@ namespace JSON {
       consume_whitespace();
       MUST(_str[_pos++] == ':', "expected colon in object");
       consume_whitespace();
-      obj[std::string(key)] = std::make_shared<JSONValue>(TRY(eval()));
+      obj[std::string(key)] = TRY(eval());
       consume_whitespace();
       if (_str[_pos] == '}')
         break;

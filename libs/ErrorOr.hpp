@@ -80,23 +80,15 @@ using MaybeError = ErrorOr<Nil>;
 
 #define TRY(expr)                                                              \
     ({                                                                         \
-        auto&& _try_tmp = (expr);                                              \
-        if (_try_tmp.is_error())                                               \
-            return _try_tmp.error();                                           \
-        std::move(_try_tmp.value());                                           \
+        _Pragma("GCC diagnostic push");                                        \
+        _Pragma("GCC diagnostic ignored \"-Wshadow\"");                        \
+        auto&& try_tmp = (expr);                                               \
+        if (try_tmp.is_error())                                                \
+            return try_tmp.error();                                            \
+        _Pragma("GCC diagnostic pop");                                         \
+        std::move(try_tmp.value());                                            \
     })
 
-#define TRY_FINALLY(expr, finally_expr)                                        \
-    ({                                                                         \
-        auto&& _try_tmp = (expr);                                              \
-        if (_try_tmp.is_error()) {                                             \
-            (finally_expr);                                                    \
-            return _try_tmp.error();                                           \
-        }                                                                      \
-        (finally_expr);                                                        \
-        std::move(_try_tmp.value());                                           \
-    })
-
-#define MUST(expr, err) if (!(expr)) return Error(err)
+#define MUST(expr, err) if (!((expr))) return Error(err)
 
 #define NotYetImplemented Error("not yet implmented")
