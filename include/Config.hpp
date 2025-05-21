@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <memory>
+#include <span>
 
 #include "Data.hpp"
 #include "ErrorOr.hpp"
@@ -24,5 +25,6 @@ namespace Config {
 
   struct Init {
     static auto fileConf() -> ErrorOr<FileConfig>;
+    static auto argConf(int argc, std::span<char *> argv) -> ErrorOr<Params>;
   };
 }  // namespace Config
