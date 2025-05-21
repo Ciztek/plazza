@@ -21,6 +21,18 @@ public:
   }
 
 #define Error(msg) Error(msg, __FILE__, __LINE__)
+
+  [[nodiscard]] auto what() const -> const std::string &
+  {
+    return message;
+  }
+
+  [[nodiscard]] auto c_str() const -> const char *
+  {
+    return message.c_str();
+  }
+
+private:
   std::string message;
 };
 
@@ -68,6 +80,12 @@ public:
   auto is_error() const -> bool
   {
     return std::holds_alternative<Error>(result);
+  }
+
+  [[nodiscard]]
+  auto operator!() const -> bool
+  {
+    return is_error();
   }
 
 private:

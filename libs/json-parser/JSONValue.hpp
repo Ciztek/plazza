@@ -16,8 +16,6 @@ namespace JSON {
     using Value = std::
       variant<std::nullptr_t, bool, double, std::string, JSONArray, JSONObject>;
 
-    Value stored;
-
     JSONValue() : stored(nullptr) {}
 
     JSONValue(const std::string &str) : stored(str) {}
@@ -73,5 +71,8 @@ namespace JSON {
         "Invalid type" + std::string(typeid(T).name()) + " for "
         + to_string());
     }
+
+  private:
+    Value stored;
   };
 }  // namespace JSON
