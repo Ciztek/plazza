@@ -70,7 +70,7 @@ namespace Data {
     lookup(const std::string &value) const -> ErrorOr<size_t>
     {
       for (size_t i = 0; i < this->used(); ++i)
-        if (this->operator[](i) == value)
+        if (strcasecmp(this->operator[](i).c_str(), value.c_str()) == 0)
           return i;
       return Error("Not found");
     }
