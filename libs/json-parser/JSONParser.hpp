@@ -25,8 +25,8 @@ namespace JSON {
     auto parse_literal() -> ErrorOr<JSONValue>;
     auto parse_value() -> ErrorOr<JSONValue>;
 
-    auto parse_object() -> ErrorOr<JsonObject>;
-    auto parse_array() -> ErrorOr<JsonArray>;
+    auto parse_object() -> ErrorOr<JSONObject>;
+    auto parse_array() -> ErrorOr<JSONArray>;
     auto parse_string() -> ErrorOr<std::string>;
 
     std::string const &_str;
