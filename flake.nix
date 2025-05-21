@@ -21,6 +21,7 @@
       default = pkgs.mkShell {
         inherit (self.checks.${pkgs.system}.pre-commit-check) shellHook;
 
+        env.MAKEFLAGS = "-j";
         hardeningDisable = ["fortify"];
         inputsFrom = [self.packages.${pkgs.system}.plazza];
         packages = with pkgs;
@@ -30,6 +31,7 @@
             gnumake
             compiledb
             gcovr
+            hl-log-viewer
           ]
           ++ (with self.packages.${pkgs.system}; [
             align-slashes
