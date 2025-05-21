@@ -1,3 +1,5 @@
+#include <array>
+
 #include "Logger.hpp"
 
 LogSettings LogStream::SETTINGS;
@@ -17,9 +19,9 @@ void LogStream::flush()
   if (_level < SETTINGS.filter)
     return;
 
-  char timebuf[sizeof "YYYY-MM-DDTHH:MM:SSZ"];
+  std::array<char, sizeof "YYYY-MM-DDTHH:MM:SSZ" - 1> timebuf;
   std::time_t now = std::time(nullptr);
-  std::strftime(timebuf, sizeof timebuf, "%FT%TZ", std::gmtime(&now));
+  std::strftime(timebuf.data(), sizeof timebuf, "%FT%TZ", std::gmtime(&now));
 
   const char *level_str;
   switch (_level) {
@@ -57,7 +59,7 @@ void LogStream::flush()
       "\"line\":%d,"
       "\"message\":\"%s\""
       "}\n",
-      timebuf,
+      timebuf.data(),
       level_str,
       _file,
       _line,
@@ -66,7 +68,7 @@ void LogStream::flush()
     std::fprintf(
       SETTINGS.output,
       "[%s] %s (%s:%d): %s\n",
-      timebuf,
+      timebuf.data(),
       level_str,
       _file,
       _line,
