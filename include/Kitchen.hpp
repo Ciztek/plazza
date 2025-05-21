@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <vector>
 
+#include "Config.hpp"
 #include "ErrorOr.hpp"
 #include "Pizza.hpp"
 
@@ -13,7 +14,7 @@ namespace Plazza {
 
   class Kitchen {
   public:
-    Kitchen() = default;
+    Kitchen(const Config::FileConfig &conf, const Config::Params &params);
 
     Kitchen(const Kitchen &) = delete;
     Kitchen(Kitchen &&) = delete;
@@ -27,7 +28,7 @@ namespace Plazza {
   private:
     class Fridge {
     public:
-      Fridge();
+      Fridge(const Config::FileConfig &conf);
       ~Fridge() = default;
 
       [[nodiscard]] auto get(size_t ing) const -> uint8_t;
@@ -40,6 +41,8 @@ namespace Plazza {
       std::vector<std::atomic<uint8_t>> _stock;
     };
 
-    Fridge _fridge;
+    const Config::FileConfig &_conf;
+    const Config::Params _params;
+    Fridge _fridge{_conf};
   };
 }  // namespace Plazza
