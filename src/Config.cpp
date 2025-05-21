@@ -1,3 +1,5 @@
+#include <cstddef>
+
 #include "Config.hpp"
 #include "ErrorOr.hpp"
 #include "json-parser/JSONParser.hpp"
@@ -85,5 +87,55 @@ namespace Config {
     if (conf_parsing.is_error())
       MUST(parse(conf, "default.json"), "Default.json not found or invalid");
     return conf;
+  }
+
+  namespace {
+
+#define IS_ONLY(str, valid) (strspn(str, valid) == strlen(str))
+
+    auto validateIntArgs(char *arg) -> MaybeError
+    {
+      if (!IS_ONLY(arg, "0123456789"))
+        return Error("Time parameter is not a positive intger");
+      if (std::stoul(arg, nullptr, 10) == 0)
+        return Error("Time parameter cannot be 0");
+      return Nil{};
+    }
+
+    auto validateDoubleArgs(char *arg) -> MaybeError
+    {
+      size_t idx = 0;
+      double value = 0;
+
+      try {
+        value = std::stod(arg, &idx);
+      } catch (...) {
+        return Error("Multiplier parameter is not a double");
+      }
+      if (idx != strlen(arg))
+        return Error("Multiplier parameter is not a double");
+      if (value <= 0)
+        return Error("Multiplier parameter cannot be 0 or negative");
+      return Nil{};
+    }
+
+#undef IS_ONLY
+
+  }  // namespace
+
+  auto Init::argConf(int argc, std::span<char *> argv) -> ErrorOr<Params>
+  {
+    Config::Params params;
+    if (argc != 4)
+      return Error("Not enough arguments");
+
+    TRY(validateDoubleArgs(argv[1]));
+    TRY(validateIntArgs(argv[2]));
+    TRY(validateIntArgs(argv[3]));
+
+    params.multiplier = std::stod(argv[1], nullptr);
+    params.cook = std::stoul(argv[2], nullptr, 10);
+    params.time = std::chrono::milliseconds(std::stoul(argv[3], nullptr, 10));
+    return params;
   }
 }  // namespace Config
