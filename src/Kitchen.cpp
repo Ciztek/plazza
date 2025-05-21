@@ -3,10 +3,16 @@
 
 #include "Kitchen.hpp"
 
+Plazza::Kitchen::
+  Kitchen(const Config::FileConfig &conf, const Config::Params &params)
+  : _conf(conf), _params(params)
+{
+}
+
 auto Plazza::Kitchen::cook(Pizza &pizza) -> MaybeError
 {
-  auto recipe = CONFIG_FILE.getRecipesByIds().find(pizza.getType());
-  if (recipe == CONFIG_FILE.getRecipesByIds().end())
+  auto recipe = _conf.recipesByIds.find(pizza.getType());
+  if (recipe == _conf.recipesByIds.end())
     return Error("Recipe not found");
 
   auto ingredients = recipe->second.second;
@@ -17,10 +23,9 @@ auto Plazza::Kitchen::cook(Pizza &pizza) -> MaybeError
   return Nil{};
 }
 
-Plazza::Kitchen::Fridge::Fridge()
+Plazza::Kitchen::Fridge::Fridge(const Config::FileConfig &conf)
 {
-  _stock = std::
-    vector<std::atomic<uint8_t>>(CONFIG_FILE.getIngredientsIds().size());
+  _stock = std::vector<std::atomic<uint8_t>>(conf.ingredientsIds->size());
   for (auto &ingredient: _stock)
     ingredient.store(MAX_CAPACITY, std::memory_order_release);
 }
