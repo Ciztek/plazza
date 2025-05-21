@@ -53,7 +53,7 @@ namespace {
 
   auto wrappedMain(int argc, std::span<char *> args) -> MaybeError
   {
-    TRY(CONFIG_FILE.init());
+    auto conf = TRY(Config::Init::fileConf());
     auto params = TRY(parse_params(argc, args));
     (void)params;
     return Nil{};
