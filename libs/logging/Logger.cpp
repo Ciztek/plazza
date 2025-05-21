@@ -39,6 +39,14 @@ void LogStream::flush()
       __builtin_unreachable();
   }
 
+  std::string rendered = _ss.str();
+  bool truncated = false;
+
+  if (rendered.ends_with('\n')) {
+    rendered.pop_back();
+    truncated = true;
+  }
+
   if (SETTINGS.type == LogType::JSON) {
     std::fprintf(
       SETTINGS.output,
@@ -53,7 +61,7 @@ void LogStream::flush()
       level_str,
       _file,
       _line,
-      _ss.str().c_str());
+      rendered.c_str());
   } else {
     std::fprintf(
       SETTINGS.output,
@@ -62,10 +70,12 @@ void LogStream::flush()
       level_str,
       _file,
       _line,
-      _ss.str().c_str());
+      rendered.c_str());
   }
 
   std::fflush(SETTINGS.output);
+  if (truncated)
+    Log::warn << "Incorect Log format, truncating newline!";
 }
 
 auto LogStream::log(LogLevel lvl, const char *file, int line) -> LogStream
