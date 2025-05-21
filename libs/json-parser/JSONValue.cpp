@@ -14,22 +14,22 @@ auto JSON::JSONValue::to_string(size_t depth) const -> std::string
     return std::to_string(std::get<double>(stored));
   if (std::holds_alternative<std::string>(stored))
     return "\"" + std::get<std::string>(stored) + "\"";
-  if (std::holds_alternative<JsonArray>(stored)) {
+  if (std::holds_alternative<JSONArray>(stored)) {
     str.append("[\n");
-    for (const auto &elem: std::get<JsonArray>(stored))
-      str.append(new_indent).append(elem->to_string(depth + 1)).append(",\n");
+    for (const auto &elem: std::get<JSONArray>(stored))
+      str.append(new_indent).append(elem.to_string(depth + 1)).append(",\n");
     if (str.size() > 2)
       str.erase(str.size() - 2, 2);
     str.append("\n").append(indent).append("]");
     return str;
   }
-  if (std::holds_alternative<JsonObject>(stored)) {
+  if (std::holds_alternative<JSONObject>(stored)) {
     str.append("{\n");
-    for (const auto &[key, elem]: std::get<JsonObject>(stored))
+    for (const auto &[key, elem]: std::get<JSONObject>(stored))
       str.append(new_indent)
         .append(key)
         .append(": ")
-        .append(elem->to_string(depth + 1))
+        .append(elem.to_string(depth + 1))
         .append(",\n");
     if (str.size() > 2)
       str.erase(str.size() - 2, 2);
