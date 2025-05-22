@@ -2,6 +2,7 @@ import os
 
 TARGET_COLUMN = 79
 ROOT_DIR = "."
+TAB_SIZE = 4
 
 
 def align_slash(line: str) -> str:
@@ -10,8 +11,8 @@ def align_slash(line: str) -> str:
     if not line.endswith("\\"):
         return line + "\n"
 
-    content = line.rstrip("\\ \t")
-    spaces_needed = TARGET_COLUMN - len(content)
+    content = line.rstrip("\\ \t")[:]
+    spaces_needed = TARGET_COLUMN - len(content.replace("\t", " " * TAB_SIZE))
 
     if spaces_needed > 0:
         return content + (" " * spaces_needed) + "\\\n"
@@ -37,7 +38,7 @@ def main():
         os.path.join(root, fname)
         for root, _, files in os.walk(ROOT_DIR)
         for fname in files
-        if fname.endswith((".h", ".hpp", ".c", ".cpp"))
+        if fname.endswith((".h", ".hpp", ".c", ".cpp", "Makefile"))
     )
 
     for path in collected_files:
