@@ -7,6 +7,11 @@
 #include "json-parser/JSONParser.hpp"
 #include "json-parser/JSONValue.hpp"
 
+// Note on pragma disgonstic ignored
+// Fix false positive of `-Wfree-nonheap-object`
+// caused by `[[nodiscard]] auto get() const -> ErrorOr<T>` in JSONValue.hpp
+// See: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108088
+
 namespace Config {
   namespace {
     auto parseRecipe(
@@ -19,7 +24,10 @@ namespace Config {
 
       std::vector<size_t> recipeContent;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfree-nonheap-object"
       auto recipe_data = TRY(value.get<JSON::JSONObject>());
+#pragma GCC diagnostic pop
       auto recipe_array = TRY(
         recipe_data["ingredients"].get<JSON::JSONArray>());
       auto time_value = TRY(recipe_data["cooking_time"].get<double>());
@@ -55,11 +63,15 @@ namespace Config {
 
       auto json = TRY(JSON::Parser::load_from_file(path));
       auto ingredients_array = TRY(json.get<JSON::JSONArray>("ingredients"));
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfree-nonheap-object"
       auto recipes_object = TRY(json.get<JSON::JSONObject>("recipes"));
 
       for (const auto &[key, _]: TRY(json.get<JSON::JSONObject>()))
         if (key != "ingredients" && key != "recipes")
           return Error("Invalid key in JSON");
+#pragma GCC diagnostic pop
 
       MUST(!ingredients_array.empty(), "Ingredients array is empty");
       MUST(!recipes_object.empty(), "Recipes object is empty");
