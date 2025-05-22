@@ -23,8 +23,6 @@ namespace Data {
 
     void add(const T &value)
     {
-      if (_used >= _data.size())
-        throw std::runtime_error("Array is full");
       _data[_used++] = value;
     }
 
@@ -35,15 +33,11 @@ namespace Data {
 
     [[nodiscard]] auto operator[](size_t index) const -> const T &
     {
-      if (index >= _used)
-        throw std::out_of_range("Index out of used range");
       return _data[index];
     }
 
     [[nodiscard]] auto operator[](size_t index) -> T &
     {
-      if (index >= _used)
-        throw std::out_of_range("Index out of used range");
       return _data[index];
     }
 

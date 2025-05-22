@@ -7,13 +7,11 @@
 #include "Data.hpp"
 #include "ErrorOr.hpp"
 
-#define EXIT_TEK 84
-
 namespace Config {
 
   struct Params {
     double multiplier;
-    size_t cook;
+    std::uint8_t cook;
     std::chrono::milliseconds time;
   };
 

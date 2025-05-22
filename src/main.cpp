@@ -5,6 +5,7 @@
 #include "ErrorOr.hpp"
 
 namespace {
+  constexpr int EXIT_TEK = 84;
 
   auto wrappedMain(int argc, std::span<char *> argv) -> MaybeError
   {
@@ -13,10 +14,13 @@ namespace {
     (void)params;
     return Nil{};
   }
+
 }  // namespace
 
 auto main(int argc, char *argv[]) -> int
 {
+  argc--;
+  argv++;
   std::span<char *> args(argv, argv + argc);
   if (wrappedMain(argc, args).is_error())
     return EXIT_TEK;
