@@ -71,7 +71,7 @@ out_bonus := bonus
 define mk-bin
 
 objs__$(strip $1) := $(base-src:%.cpp=$(BUILD)/$(strip $1)/%.o)
-lib_objs__$(strip $1) += $(every_lib)
+lib_objs__$(strip $1) += $$(filter $(BUILD)/$(strip $1)/%, $$(every_lib))
 
 $$(out_$(strip $1)): LDFLAGS += $$(LDFLAGS_$(strip $1))
 $$(out_$(strip $1)): LDLIBS += $$(LDLIBS_$(strip $1))
@@ -113,7 +113,7 @@ bonus debug:
 endif
 
 .PHONY: all #? all: Build the project
-all: $(every_out)
+all: $(out_release)
 
 .PHONY: clean #? clean: Remove generated compiled files
 clean:
