@@ -9,8 +9,8 @@ namespace {
 
   auto wrappedMain(int argc, std::span<char *> argv) -> MaybeError
   {
-    auto conf = TRY(Config::Init::fileConf());
-    auto params = TRY(Config::Init::argConf(argc, argv));
+    auto conf = TRY(Config::FileConfig::init());
+    auto params = TRY(Config::Params::init(argc, argv));
     (void)params;
     return Nil{};
   }

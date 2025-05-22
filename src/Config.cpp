@@ -84,7 +84,7 @@ namespace Config {
     }
   }  // namespace
 
-  auto Init::fileConf() -> ErrorOr<FileConfig>
+  auto Config::FileConfig::init() -> ErrorOr<FileConfig>
   {
     FileConfig conf;
 
@@ -129,7 +129,8 @@ namespace Config {
 
   }  // namespace
 
-  auto Init::argConf(int argc, std::span<char *> argv) -> ErrorOr<Params>
+  auto
+  Config::Params::init(int argc, std::span<char *> argv) -> ErrorOr<Params>
   {
     Config::Params params;
     if (argc != 3)
