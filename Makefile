@@ -20,9 +20,9 @@ define generic-o-builder
 
 $(BUILD)/$(strip $1)/%.o: %.cpp
 	@ mkdir -p $$(dir $$@)
-	$$Q $$(COMPILE.cpp) -MMD -MP -MF $$(@:.o=.d) \
+	$$Q $$(COMPILE.cpp) -MMD -MP -MF $$(@:.o=.d)                               \
 		-o $$@ -c $$< $$(CXXFLAGS) $$(CXXFLAGS_$(strip $1))
-	@ $$(LOG_TIME) "CC $$(C_YELLOW)$(strip $1)$$(C_RESET) \
+	@ $$(LOG_TIME) "CC $$(C_YELLOW)$(strip $1)$$(C_RESET)                      \
 		$$(C_PURPLE)$$(notdir $$@) $$(C_RESET)"
 
 endef
@@ -37,14 +37,14 @@ every_lib_obj :=
 define mk-archive-lib
 
 lib__$(strip $1)__src != find libs/$(strip $1) -type f -name "*.cpp"
-lib__$(strip $1)__obj := \
+lib__$(strip $1)__obj :=                                                       \
 	$$(lib__$(strip $1)__src:libs/%.cpp=$(BUILD)/$(strip $2)/%.o)
 
 $(BUILD)/$(strip $2)/%.o: libs/%.cpp
 	@ mkdir -p $$(dir $$@)
-	$$Q $$(COMPILE.cpp) -MMD -MP -MF $$(@:.o=.d) \
+	$$Q $$(COMPILE.cpp) -MMD -MP -MF $$(@:.o=.d)                               \
 		-o $$@ -c $$< $$(CXXFLAGS) $$(CXXFLAGS_$(strip $1))
-	@ $$(LOG_TIME) "CC $$(C_YELLOW)$(strip $1)$$(C_RESET) \
+	@ $$(LOG_TIME) "CC $$(C_YELLOW)$(strip $1)$$(C_RESET)                      \
 		$$(C_PURPLE)$$(notdir $$@) $$(C_RESET)"
 
 $(BUILD)/$(strip $2)/lib$(strip $1).a: $$(lib__$(strip $1)__obj)
@@ -58,8 +58,8 @@ every_lib_obj += $$(lib__$(strip $1)__obj)
 
 endef
 
-libs := $(foreach lib, \
-	$(shell find libs -maxdepth 1 -type d -not -name libs), \
+libs := $(foreach lib,                                                         \
+	$(shell find libs -maxdepth 1 -type d -not -name libs),                    \
 	$(notdir $(lib)))
 
 out_release := plazza
@@ -76,7 +76,7 @@ lib_objs__$(strip $1) += $$(filter $(BUILD)/$(strip $1)/%, $$(every_lib))
 $$(out_$(strip $1)): LDFLAGS += $$(LDFLAGS_$(strip $1))
 $$(out_$(strip $1)): LDLIBS += $$(LDLIBS_$(strip $1))
 $$(out_$(strip $1)): $$(objs__$(strip $1)) $$(lib_objs__$(strip $1))
-	$$Q $$(CXX) $$(CXXFLAGS) $$(CXXFLAGS_$(strip $1)) \
+	$$Q $$(CXX) $$(CXXFLAGS) $$(CXXFLAGS_$(strip $1))                          \
 		-o $$@ $$^ $$(LDLIBS) $$(LDFLAGS)
 	@ $$(LOG_TIME) "LD $$(C_GREEN)$$@ $$(C_RESET)"
 
@@ -87,19 +87,19 @@ endef
 
 base-src != find src -type f -name "*.cpp"
 
-$(foreach build-mode, release debug check cov, \
-	$(eval $(call generic-o-builder, $(build-mode))) \
-	$(foreach lib-name, $(libs), \
-		$(eval $(call mk-archive-lib, $(lib-name), $(build-mode)))) \
-	$(eval $(call mk-bin, $(build-mode))) \
+$(foreach build-mode, release debug check cov,                                 \
+	$(eval $(call generic-o-builder, $(build-mode)))                           \
+	$(foreach lib-name, $(libs),                                               \
+		$(eval $(call mk-archive-lib, $(lib-name), $(build-mode))))            \
+	$(eval $(call mk-bin, $(build-mode)))                                      \
 )
 
 ifeq ($V, 2)
-$(foreach build-mode, release debug check, \
-	$(info $(call generic-o-builder, $(build-mode))) \
-	$(foreach lib-name, $(libs), \
-		$(info $(call mk-archive-lib, $(lib-name), $(build-mode)))) \
-	$(info $(call mk-bin, $(build-mode))) \
+$(foreach build-mode, release debug check,                                     \
+	$(info $(call generic-o-builder, $(build-mode)))                           \
+	$(foreach lib-name, $(libs),                                               \
+		$(info $(call mk-archive-lib, $(lib-name), $(build-mode))))            \
+	$(info $(call mk-bin, $(build-mode)))                                      \
 )
 endif
 
@@ -145,8 +145,8 @@ compiledb: mrproper $(CC_JSON)
 
 .PHONY: help
 help: #? help: Show this help message
-	@ grep -P "#[?] " $(MAKEFILE_LIST)          \
-	  | sed -E 's/.*#\? ([^:]+): (.*)/\1 "\2"/' \
+	@ grep -P "#[?] " $(MAKEFILE_LIST)                                         \
+	  | sed -E 's/.*#\? ([^:]+): (.*)/\1 "\2"/'                                \
 	  | xargs printf "%-12s: %s\n"
 
 V ?= 0
