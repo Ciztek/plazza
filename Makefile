@@ -20,7 +20,7 @@ define generic-o-builder
 
 $(BUILD)/$(strip $1)/%.o: %.cpp
 	@ mkdir -p $$(dir $$@)
-	$$Q $$(COMPILE.cpp) -fPIC \
+	$$Q $$(COMPILE.cpp) -MMD -MP -MF $$(@:.o=.d) \
 		-o $$@ -c $$< $$(CXXFLAGS) $$(CXXFLAGS_$(strip $1))
 	@ $$(LOG_TIME) "CC $$(C_YELLOW)$(strip $1)$$(C_RESET) \
 		$$(C_PURPLE)$$(notdir $$@) $$(C_RESET)"
@@ -42,7 +42,8 @@ lib__$(strip $1)__obj := \
 
 $(BUILD)/$(strip $2)/%.o: libs/%.cpp
 	@ mkdir -p $$(dir $$@)
-	$$Q $$(COMPILE.cpp) -o $$@ -c $$< $$(CXXFLAGS) $$(CXXFLAGS_$(strip $1))
+	$$Q $$(COMPILE.cpp) -MMD -MP -MF $$(@:.o=.d) \
+		-o $$@ -c $$< $$(CXXFLAGS) $$(CXXFLAGS_$(strip $1))
 	@ $$(LOG_TIME) "CC $$(C_YELLOW)$(strip $1)$$(C_RESET) \
 		$$(C_PURPLE)$$(notdir $$@) $$(C_RESET)"
 
@@ -52,6 +53,9 @@ $(BUILD)/$(strip $2)/lib$(strip $1).a: $$(lib__$(strip $1)__obj)
 
 every_lib += $(BUILD)/$(strip $2)/lib$(strip $1).a
 every_lib_obj += $$(lib__$(strip $1)__obj)
+
+-include $$(every_obj:.o=.d) $$(every_lib_obj:.o=.d)
+
 endef
 
 libs := $(foreach lib, \
