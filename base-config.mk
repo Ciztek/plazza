@@ -16,14 +16,11 @@ RM ?= rm --force
 
 CXXFLAGS := -std=c++20
 CXXFLAGS += -iquote $/libs -iquote $/include
-CXXFLAGS += $(shell cat $/warning_flags.txt)
+
+CXXFLAGS += $(shell grep -vP '^(#|$$)' ./warning_flags.conf)
+# Do not listen to bad hightlighter  ^
 
 CXXFLAGS_release := -O2 -fomit-frame-pointer
-
-# Fix false positive of `-Wfree-nonheap-object`
-# caused by `[[nodiscard]] auto get() const -> ErrorOr<T>` in JSONValue.hpp
-# See: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108088
-CXXFLAGS_release += -fno-inline-small-functions
 
 CXXFLAGS_bonus := $(CXXFLAGS_release) -DBONUS=1 -fanalyzer -DDEBUG_MODE
 CXXFLAGS_bonus += -g3 -fsanitize=address,leak,undefined
@@ -35,6 +32,5 @@ LDFLAGS :=
 
 DEPS_FLAGS ?= -MMD -MP
 
-#MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --no-print-directory
