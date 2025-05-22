@@ -14,8 +14,8 @@ namespace Config {
       const std::string &key,
       const JSON::JSONValue &value) -> MaybeError
     {
-      conf.recipesIds->add(key);
-      auto recipe_id = TRY(conf.recipesIds->lookup(key));
+      TRY(conf.recipesIds.insert(conf.recipesIds.size(), key));
+      auto recipe_id = TRY(conf.recipesIds.at_value(key));
 
       std::vector<size_t> recipeContent;
 
@@ -33,7 +33,7 @@ namespace Config {
 
       for (const auto &item: recipe_array) {
         auto ingredient = TRY(item.get<std::string>());
-        auto ingredient_id = TRY(conf.ingredientsIds->lookup(ingredient));
+        auto ingredient_id = TRY(conf.ingredientsIds.at_value(ingredient));
         recipeContent.push_back(ingredient_id);
       }
 
@@ -49,9 +49,10 @@ namespace Config {
       return Nil{};
     }
 
-    auto
-    parse(FileConfig &conf, const std::filesystem::path &path) -> MaybeError
+    auto parse(const std::filesystem::path &path) -> ErrorOr<FileConfig>
     {
+      FileConfig conf;
+
       auto json = TRY(JSON::Parser::load_from_file(path));
       auto ingredients_array = TRY(json.get<JSON::JSONArray>("ingredients"));
       auto recipes_object = TRY(json.get<JSON::JSONObject>("recipes"));
@@ -60,37 +61,34 @@ namespace Config {
         if (key != "ingredients" && key != "recipes")
           return Error("Invalid key in JSON");
 
-      if (ingredients_array.empty())
-        return Error("Ingredients array is empty");
-      if (recipes_object.empty())
-        return Error("Recipes object is empty");
+      MUST(!ingredients_array.empty(), "Ingredients array is empty");
+      MUST(!recipes_object.empty(), "Recipes object is empty");
 
-      conf.ingredientsIds = std::
-        make_unique<Data::Ids>(ingredients_array.size());
-      conf.recipesIds = std::make_unique<Data::Ids>(recipes_object.size());
+      conf.ingredientsIds = Data::IdMapping(ingredients_array.size());
+      conf.recipesIds = Data::IdMapping(recipes_object.size());
+      conf.recipesByIds = Data::RecipeBook(recipes_object.size());
 
       for (const auto &item: ingredients_array) {
         auto ingredient = TRY(item.get<std::string>());
-        auto id = conf.ingredientsIds->lookup(ingredient);
-        if (id.has_value())
-          return Error("Duplicate ingredient found");
-        conf.ingredientsIds->add(ingredient);
+
+        if (conf.ingredientsIds.contains_value(ingredient))
+          return Error("Duplicate ingredient name");
+        TRY(
+          conf.ingredientsIds.insert(conf.ingredientsIds.size(), ingredient));
       }
 
       for (const auto &[key, value]: recipes_object)
         TRY(parseRecipe(conf, key, value));
 
-      return Nil{};
+      return conf;
     }
   }  // namespace
 
   auto Config::FileConfig::init() -> ErrorOr<FileConfig>
   {
-    FileConfig conf;
-
-    auto conf_parsing = parse(conf, "config.json");
-    if (conf_parsing.is_error())
-      MUST(parse(conf, "default.json"), "Default.json not found or invalid");
+    auto conf = parse("config.json");
+    if (!conf)
+      conf = TRY(parse("default.json"));
     return conf;
   }
 

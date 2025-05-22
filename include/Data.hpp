@@ -1,8 +1,7 @@
 #pragma once
 
-#include <iostream>
-#include <map>
 #include <stdexcept>
+#include <unordered_map>
 #include <vector>
 
 #include "ErrorOr.hpp"
@@ -46,47 +45,81 @@ namespace Data {
     size_t _used;
   };
 
-  class Ids : public FixedArray<std::string> {
+  template <typename K, typename V> class BiMap {
+  private:
+    std::unordered_map<K, V> kv;
+    std::unordered_map<V, K> vk;
+
   public:
-    explicit Ids(size_t size) : FixedArray(size) {}
+    BiMap() = default;
 
-    Ids(const Ids &) = delete;
-    Ids(Ids &&) = delete;
-    auto operator=(const Ids &) -> Ids & = delete;
-    auto operator=(Ids &&) -> Ids & = delete;
+    BiMap(size_t size) : kv(size), vk(size) {}
 
-    [[nodiscard]] auto lookup(size_t index) const -> const std::string &
+    BiMap(const BiMap &) = default;
+    BiMap(BiMap &&) = default;
+    auto operator=(const BiMap &) -> BiMap & = default;
+    auto operator=(BiMap &&) -> BiMap & = default;
+
+    ~BiMap() = default;
+
+    [[nodiscard]] auto size() const -> size_t
     {
-      return this->operator[](index);
+      return kv.size();
     }
 
-    [[nodiscard]] auto
-    lookup(const std::string &value) const -> ErrorOr<size_t>
+    auto insert(const K &key, const V &value) -> MaybeError
     {
-      for (size_t i = 0; i < this->used(); ++i)
-        if (strcasecmp(this->operator[](i).c_str(), value.c_str()) == 0)
-          return i;
-      return Error("Not found");
+      if (kv.count(key) || vk.count(value))
+        return Error("Duplicate key or value");
+      kv[key] = value;
+      vk[value] = key;
+      return Nil{};
     }
 
-    void add(const std::string &value)
+    void remove_by_key(const K &key)
     {
-      for (size_t i = 0; i < this->used(); ++i)
-        if (this->operator[](i) == value)
-          return;
-      this->FixedArray<std::string>::add(value);
+      auto it = kv.find(key);
+      if (it == kv.end())
+        return;
+      vk.erase(it->second);
+      kv.erase(it);
     }
 
-    friend auto operator<<(std::ostream &os, const Ids &ids) -> std::ostream &
+    void remove_by_value(const V &value)
     {
-      os << "[\n";
-      for (size_t i = 0; i < ids.used(); ++i)
-        os << "  " << i << ": " << ids.lookup(i)
-           << (i != ids.used() - 1 ? "," : "") << "\n";
-      os << "]";
-      return os;
+      auto it = vk.find(value);
+      if (it == vk.end())
+        return;
+      kv.erase(it->second);
+      vk.erase(it);
+    }
+
+    auto at_key(const K &key) const -> ErrorOr<V>
+    {
+      if (kv.count(key) == 0)
+        return Error("Key not found");
+      return kv.at(key);
+    }
+
+    auto at_value(const V &value) const -> ErrorOr<K>
+    {
+      if (vk.count(value) == 0)
+        return Error("Key not found");
+      return vk.at(value);
+    }
+
+    auto contains_key(const K &key) const -> bool
+    {
+      return kv.count(key) > 0;
+    }
+
+    auto contains_value(const V &value) const -> bool
+    {
+      return vk.count(value) > 0;
     }
   };
 
-  using RecipeBook = std::map<size_t, std::pair<size_t, std::vector<size_t>>>;
+  using IdMapping = Data::BiMap<size_t, std::string>;
+  using RecipeBook = std::
+    unordered_map<size_t, std::pair<size_t, std::vector<size_t>>>;
 }  // namespace Data

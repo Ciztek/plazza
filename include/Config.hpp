@@ -1,7 +1,6 @@
 #pragma once
 
 #include <chrono>
-#include <memory>
 #include <span>
 
 #include "Data.hpp"
@@ -17,8 +16,8 @@ namespace Config {
   };
 
   struct FileConfig {
-    std::unique_ptr<Data::Ids> ingredientsIds;
-    std::unique_ptr<Data::Ids> recipesIds;
+    Data::IdMapping ingredientsIds;
+    Data::IdMapping recipesIds;
     Data::RecipeBook recipesByIds;
     static auto init() -> ErrorOr<FileConfig>;
   };
