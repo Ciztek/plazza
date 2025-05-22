@@ -1,8 +1,7 @@
 {
   stdenv,
-  makeWrapper,
   lib,
-  sfml,
+  ncurses,
 }:
 stdenv.mkDerivation {
   name = "plazza";
@@ -10,17 +9,23 @@ stdenv.mkDerivation {
 
   src = ./.;
 
+  nativeBuildInputs = [ncurses]; # used for make logs
+
   enableParallelBuilding = true;
   makeFlags = ["all"];
 
-  nativeBuildInputs = [makeWrapper];
-
   installPhase = ''
+    runHook preInstall
+
     install -Dm 755 plazza -t $out/bin
+
+    runHook postInstall
   '';
 
   meta = {
-    description = "WHO SAID ANYTHING ABOUT PIZZAS?";
+    description = "Simulate a working pizzera with multiple processs and threads";
+    license = "Apache NON-IA License 2.0"; # variant on apache-2.0
+    maintainer = with lib.maintainers; [sigmanifiicient];
     mainProgram = "plazza";
   };
 }
