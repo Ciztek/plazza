@@ -13,16 +13,13 @@ namespace Config {
     double multiplier;
     std::uint8_t cook;
     std::chrono::milliseconds time;
+    static auto init(int argc, std::span<char *> argv) -> ErrorOr<Params>;
   };
 
   struct FileConfig {
     std::unique_ptr<Data::Ids> ingredientsIds;
     std::unique_ptr<Data::Ids> recipesIds;
     Data::RecipeBook recipesByIds;
-  };
-
-  struct Init {
-    static auto fileConf() -> ErrorOr<FileConfig>;
-    static auto argConf(int argc, std::span<char *> argv) -> ErrorOr<Params>;
+    static auto init() -> ErrorOr<FileConfig>;
   };
 }  // namespace Config
