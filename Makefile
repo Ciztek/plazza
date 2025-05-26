@@ -44,9 +44,11 @@ $(BUILD)/$(strip $2)/%.o: libs/%.cpp
 	@ mkdir -p $$(dir $$@)
 	$$Q $$(COMPILE.cpp) -MMD -MP -MF $$(@:.o=.d)                               \
 		-o $$@ -c $$< $$(CXXFLAGS) $$(CXXFLAGS_$(strip $1))
-	@ $$(LOG_TIME) "CC $$(C_YELLOW)$(strip $1)$$(C_RESET)                      \
+	@ $$(LOG_TIME) "CC $$(C_YELLOW)$$(LIB_TARGET)$$(C_RESET)                   \
 		$$(C_PURPLE)$$(notdir $$@) $$(C_RESET)"
 
+# using LIB_TARGET because $1 is incorrect??
+$(BUILD)/$(strip $2)/lib$(strip $1).a: LIB_TARGET := $(strip $1)
 $(BUILD)/$(strip $2)/lib$(strip $1).a: $$(lib__$(strip $1)__obj)
 	$$Q $$(AR) rc $$@ $$^
 	@ $$(LOG_TIME) "AR $$(C_GREEN)$$(notdir $$@) $$(C_RESET)"
@@ -60,12 +62,14 @@ endef
 
 libs := $(foreach lib,                                                         \
 	$(shell find libs -maxdepth 1 -type d -not -name libs),                    \
-	$(notdir $(lib)))
+	$(if                                                                       \
+	  $(shell find $(lib) -maxdepth 1 -type f -name "*.cpp"),                  \
+	  $(strip $(notdir $(lib))),                                               \
+	))
 
 out_release := plazza
 out_debug := debug
 out_bonus := bonus
-
 
 # call mk-bin, bin-name, profile, a-src
 define mk-bin
@@ -176,12 +180,12 @@ endif
 
 NOW = $(shell date +%s%3N)
 
-ifndef STIME
-STIME := $(call NOW)
-endif
+STIME := $(shell date +%s%3N)
+export STIME
 
-TIME_NS = $(shell expr $(call NOW) - $(STIME))
-TIME_MS = $(shell expr $(call TIME_NS))
+define TIME_MS
+$$( expr \( $$(date +%s%3N) - $(STIME) \))
+endef
 
 BOXIFY = "[$(C_BLUE)$(1)$(C_RESET)] $(2)"
 
