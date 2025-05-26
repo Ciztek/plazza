@@ -1,19 +1,9 @@
 #pragma once
 
-#include <chrono>
-#include <span>
-
 #include "Data.hpp"
 #include "ErrorOr.hpp"
 
 namespace Config {
-
-  struct Params {
-    double multiplier;
-    std::uint8_t cook;
-    std::chrono::milliseconds time;
-    static auto init(int argc, std::span<char *> argv) -> ErrorOr<Params>;
-  };
 
   struct FileConfig {
     Data::IdMapping ingredientsIds;
