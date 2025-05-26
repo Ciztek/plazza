@@ -85,17 +85,8 @@ auto LogStream::log(LogLevel lvl, const char *file, int line) -> LogStream
   return {lvl, file, line};
 }
 
-void LogStream::
-  logger_configure(const std::string &log_path, LogLevel level, LogType type)
+void LogStream::logger_configure(LogLevel level, LogType type)
 {
   LogStream::SETTINGS.filter = level;
   LogStream::SETTINGS.type = type;
-
-  if (!log_path.empty()) {
-    FILE *fp = std::fopen(log_path.c_str(), "w");
-    if (!fp) {
-      std::perror("Failed to open log file");
-      std::exit(1);
-    }
-  }
 }

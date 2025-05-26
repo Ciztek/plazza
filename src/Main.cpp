@@ -1,5 +1,7 @@
+#include <cstdio>
 #include <cstdlib>
 #include <span>
+#include <unistd.h>
 
 #include "ErrorOr.hpp"
 
@@ -7,12 +9,18 @@
 #include "Kitchen.hpp"
 #include "KitchenCatalog.hpp"
 #include "Reception.hpp"
+#include "logging/Logger.hpp"
 
 namespace {
   constexpr int EXIT_TEK = 84;
 
   auto wrappedMain(int argc, std::span<char *> argv) -> MaybeError
   {
+    bool interactive = isatty(fileno(stdin));
+    if (interactive)
+      LogStream::logger_configure(LogLevel::INFO, LogType::SIMPLE);
+    /* ^ we do it first to avoid logging being used before */
+
     auto params = TRY(Params::parse_arguments(argc, argv));
     Log::info << params;
 
@@ -24,7 +32,7 @@ namespace {
 
     Log::info << p;
 
-    run_reception_repl();
+    run_reception_repl(interactive);
     return {};
   }
 

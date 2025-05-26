@@ -13,14 +13,14 @@ constexpr auto HELP =
 
 constexpr auto ASCII_ART = R"(
     ____                                _            _   ____
-   / __ \                              | |          | | |___                   \
+   / __ \                              | |          | | |___ \
   | |  | |_   _____ _ __ ___ ___   ___ | | _____  __| |   __) |
   | |  | \ \ / / _ \ '__/ __/ _ \ / _ \| |/ / _ \/ _` |  |__ <
   | |__| |\ V /  __/ | | (_| (_) | (_) |   <  __/ (_| |  ___) |
    \____/  \_/ \___|_|  \___\___/ \___/|_|\_\___|\__,_| |____/
   |  ____|       | |                        | |
   | |__ ___  _ __| | ___ __   ___   ___ __ _| |_   _ _ __  ___  ___
-  |  __/ _ \| '__| |/ / '_ \ / _ \ / __/ _` | | | | | '_ \/ __|/ _             \
+  |  __/ _ \| '__| |/ / '_ \ / _ \ / __/ _` | | | | | '_ \/ __|/ _ \
   | | | (_) | |  |   <| |_) | (_) | (_| (_| | | |_| | |_) \__ \  __/
   |_|  \___/|_|  |_|\_\ .__/ \___/ \___\__,_|_|\__, | .__/|___/\___|
                       | |                       __/ | |
@@ -52,14 +52,15 @@ namespace {
   }
 }  // namespace
 
-void run_reception_repl()
+void run_reception_repl(bool interactive)
 {
   std::string command;
   std::cout << ASCII_ART;
   bool is_running = true;
 
   while (is_running) {
-    std::cout << "> " << std::flush;
+    if (interactive)
+      std::cout << "> " << std::flush;
     if (!std::getline(std::cin, command))
       is_running = false;
     if (command.empty())
