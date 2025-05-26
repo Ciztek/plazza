@@ -71,12 +71,12 @@ namespace {
   }
 }  // namespace
 
-Plazza::Pizza::Pizza(uint8_t type, Size size, State state)
+Pizza::Pizza(uint8_t type, Size size)
 {
-  set(type, size, state);
+  set(type, size, UNUSED);
 }
 
-auto Plazza::Pizza::set(uint8_t type, Size size, State state) -> Pizza &
+auto Pizza::set(uint8_t type, Size size, State state) -> Pizza &
 {
   uint16_t value = encodeField(type, TYPE) | encodeField(size, SIZE)
     | encodeField(0, LEFT) | encodeField(state, STAT);
@@ -85,7 +85,7 @@ auto Plazza::Pizza::set(uint8_t type, Size size, State state) -> Pizza &
   return *this;
 }
 
-auto Plazza::Pizza::setState(State newState) -> Pizza &
+auto Pizza::setState(State newState) -> Pizza &
 {
   uint16_t current = raw();
   uint16_t updated = (current & ~getMask(STAT)) | encodeField(newState, STAT);
@@ -94,28 +94,28 @@ auto Plazza::Pizza::setState(State newState) -> Pizza &
   return *this;
 }
 
-auto Plazza::Pizza::clear() -> Pizza &
+auto Pizza::clear() -> Pizza &
 {
   data.store(0, std::memory_order_release);
   return *this;
 }
 
-auto Plazza::Pizza::raw() const -> uint16_t
+auto Pizza::raw() const -> uint16_t
 {
   return data.load(std::memory_order_acquire);
 }
 
-auto Plazza::Pizza::getType() const -> uint8_t
+auto Pizza::getType() const -> uint8_t
 {
   return static_cast<uint8_t>(decodeField(raw(), TYPE));
 }
 
-auto Plazza::Pizza::getSize() const -> Pizza::Size
+auto Pizza::getSize() const -> Pizza::Size
 {
   return static_cast<Pizza::Size>(decodeField(raw(), SIZE));
 }
 
-auto Plazza::Pizza::getState() const -> Pizza::State
+auto Pizza::getState() const -> Pizza::State
 {
   return static_cast<State>(decodeField(raw(), STAT));
 }
