@@ -1,8 +1,8 @@
-#include <cstddef>
+#include <iostream>
 
-#include "ErrorOr.hpp"
-#include "Pizza.hpp"
 #include "Reception.hpp"
+#include "logging/Logger.hpp"
+#include "reception/TicketFacade.hpp"
 
 constexpr auto HELP =
   ("Available commands:\n"
@@ -27,22 +27,30 @@ constexpr auto ASCII_ART = R"(
                       |_|                      |___/|_|
  )";
 
-void process_order(std::string &command)
-{
-  Log::debug << "processing order: [" + command + "]";
-}
+namespace {
+  void process_order(std::string &command)
+  {
+    Log::debug << "processing order: [" + command + "]";
+    auto ticket = take_order_ticket(command);
 
-static auto run_command(std::string &command) -> bool
-{
-  if (command == "help") {
-    std::cout << HELP;
+    if (ticket.is_error())
+      return;
+    for (const auto &order: ticket.value())
+      std::cout << "type:" << order.type << "| size: " << order.size;
+  }
+
+  auto run_command(std::string &command) -> bool
+  {
+    if (command == "help") {
+      std::cout << HELP;
+      return true;
+    }
+    if (command == "quit")
+      return false;
+    process_order(command);
     return true;
   }
-  if (command == "quit")
-    return false;
-  process_order(command);
-  return true;
-}
+}  // namespace
 
 void run_reception_repl()
 {
@@ -51,7 +59,7 @@ void run_reception_repl()
   bool is_running = true;
 
   while (is_running) {
-    std::cout << "> ";
+    std::cout << "> " << std::flush;
     if (!std::getline(std::cin, command))
       is_running = false;
     if (command.empty())
