@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <span>
 
+#include "ArgParser.hpp"
 #include "Config.hpp"
 #include "ErrorOr.hpp"
 
@@ -10,8 +11,9 @@ namespace {
   auto wrappedMain(int argc, std::span<char *> argv) -> MaybeError
   {
     auto conf = TRY(Config::FileConfig::init());
-    auto params = TRY(Config::Params::init(argc, argv));
-    (void)params;
+    auto params = TRY(Params::parse_arguments(argc, argv));
+
+    Log::info << params;
     return Nil{};
   }
 
