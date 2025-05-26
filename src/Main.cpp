@@ -6,7 +6,7 @@
 #include "ArgParser.hpp"
 #include "Kitchen.hpp"
 #include "KitchenCatalog.hpp"
-#include "Repl.hpp"
+#include "Reception.hpp"
 
 namespace {
   constexpr int EXIT_TEK = 84;
@@ -24,8 +24,7 @@ namespace {
 
     Log::info << p;
 
-    Plazza::Repl repl;
-    TRY(repl.run());
+    run_reception_repl();
     return {};
   }
 
