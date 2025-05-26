@@ -2,7 +2,8 @@
 #include <span>
 
 #include "ArgParser.hpp"
-#include "Config.hpp"
+#include "KitchenCatalog.hpp"
+
 #include "ErrorOr.hpp"
 
 namespace {
@@ -10,10 +11,10 @@ namespace {
 
   auto wrappedMain(int argc, std::span<char *> argv) -> MaybeError
   {
-    auto conf = TRY(Config::FileConfig::init());
     auto params = TRY(Params::parse_arguments(argc, argv));
 
     Log::info << params;
+    auto catalog = TRY(KitchenCalatog::load_from_file("catalog.json"));
     return Nil{};
   }
 
