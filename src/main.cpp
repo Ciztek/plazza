@@ -2,6 +2,7 @@
 #include <span>
 
 #include "ArgParser.hpp"
+#include "Kitchen.hpp"
 #include "KitchenCatalog.hpp"
 
 #include "ErrorOr.hpp"
@@ -12,10 +13,16 @@ namespace {
   auto wrappedMain(int argc, std::span<char *> argv) -> MaybeError
   {
     auto params = TRY(Params::parse_arguments(argc, argv));
-
     Log::info << params;
+
     auto catalog = TRY(KitchenCalatog::load_from_file("catalog.json"));
-    return Nil{};
+    Log::info << "Loaded with " << catalog.recipes.size() << " recipes!";
+
+    Kitchen test(catalog, params.cook);
+    Pizza p(TRY(catalog.recipes.at_value("margarita")), Pizza::XL);
+
+    Log::info << p;
+    return {};
   }
 
 }  // namespace
