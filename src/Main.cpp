@@ -1,27 +1,40 @@
+#include <cstdio>
 #include <cstdlib>
 #include <span>
-
-#include "ArgParser.hpp"
-#include "Kitchen.hpp"
-#include "KitchenCatalog.hpp"
+#include <unistd.h>
 
 #include "ErrorOr.hpp"
+
+#include "ArgParser.hpp"
+#include "KitchenCatalog.hpp"
+#include "Reception.hpp"
+#include "logging/Logger.hpp"
 
 namespace {
   constexpr int EXIT_TEK = 84;
 
   auto wrappedMain(int argc, std::span<char *> argv) -> MaybeError
   {
+    bool interactive = isatty(fileno(stdin));
+    if (interactive)
+      LogStream::logger_configure(LogLevel::INFO, LogType::SIMPLE);
+#ifdef DEBUG_MODE
+    if (interactive)
+      LogStream::logger_configure(LogLevel::DEBUG, LogType::SIMPLE);
+#endif
+    /* ^ we do it first to avoid logging being used before */
+
     auto params = TRY(Params::parse_arguments(argc, argv));
     Log::info << params;
 
     auto catalog = TRY(KitchenCalatog::load_from_file("catalog.json"));
     Log::info << "Loaded with " << catalog.recipes.size() << " recipes!";
 
-    Kitchen test(catalog, params.cook);
     Pizza p(TRY(catalog.recipes.at_value("margarita")), Pizza::XL);
-
     Log::info << p;
+
+    Reception reception(catalog, params.cook);
+    reception.run_repl(interactive);
     return {};
   }
 

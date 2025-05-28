@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <thread>
 #include <vector>
 
 #include "ErrorOr.hpp"
@@ -11,12 +12,7 @@
 
 class Kitchen {
 public:
-  Kitchen(const KitchenCalatog &catalog, size_t ncook);
-
-  Kitchen(const Kitchen &) = delete;
-  Kitchen(Kitchen &&) = delete;
-  auto operator=(const Kitchen &) -> Kitchen & = delete;
-  auto operator=(Kitchen &&) -> Kitchen & = delete;
+  Kitchen(const KitchenCalatog &catalog, size_t ncook, int id, int port);
 
   auto cook(Pizza &pizza) -> MaybeError;
 
@@ -26,4 +22,7 @@ private:
   const KitchenCalatog _catalog;
   std::vector<uint8_t> _fridge;
   size_t _ncook;
+  int _port;
+  // TODO: find a fix for this
+  // std::vector<std::thread> _cooks;
 };

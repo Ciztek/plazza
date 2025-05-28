@@ -24,7 +24,24 @@ def align_slash_in_file(file_path):
     with open(file_path, encoding="utf-8") as f:
         lines = [line for line in f]
 
-    lines_out = [align_slash(line) for line in lines]
+    lines_out = []
+    inside_raw_string = False
+
+    for line in lines:
+        if 'R"(' in line:
+            inside_raw_string = True
+            lines_out.append(line)
+            continue
+        if inside_raw_string and ')"' in line:
+            inside_raw_string = False
+            lines_out.append(line)
+            continue
+        if inside_raw_string:
+            lines_out.append(line)
+            continue
+
+        # Outside raw string, apply alignment
+        lines_out.append(align_slash(line))
 
     if lines != lines_out:
         with open(file_path, "w", encoding="utf-8") as f:

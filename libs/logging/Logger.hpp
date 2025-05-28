@@ -39,8 +39,7 @@ public:
 
   void flush();
   static auto log(LogLevel lvl, const char *file, int line) -> LogStream;
-  static void
-  logger_configure(const std::string &log_path, LogLevel level, LogType type);
+  static void logger_configure(LogLevel level, LogType type);
 
 private:
   LogLevel _level;
