@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 
 #include "Reception.hpp"
@@ -13,7 +14,7 @@ constexpr auto HELP =
 
 constexpr auto ASCII_ART = R"(
     ____                                _            _   ____
-   / __ \                              | |          | | |___ \
+   / __ \                              | |          | | |___  \
   | |  | |_   _____ _ __ ___ ___   ___ | | _____  __| |   __) |
   | |  | \ \ / / _ \ '__/ __/ _ \ / _ \| |/ / _ \/ _` |  |__ <
   | |__| |\ V /  __/ | | (_| (_) | (_) |   <  __/ (_| |  ___) |
@@ -52,7 +53,16 @@ namespace {
   }
 }  // namespace
 
-void run_reception_repl(bool interactive)
+Reception::Reception(const KitchenCalatog &catalog, size_t ncook)
+  : _catalog(catalog), _ncook(ncook)
+{
+  _kitchen_thread = std::jthread([](const std::stop_token &st) {
+    while (!st.stop_requested())
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+  });
+}
+
+void Reception::run_repl(bool interactive)
 {
   std::string command;
   std::cout << ASCII_ART;
@@ -67,4 +77,16 @@ void run_reception_repl(bool interactive)
       continue;
     is_running = run_command(command);
   }
+}
+
+auto Reception::create_kitchen(int id, int port) -> ErrorOr<Kitchen>
+{
+  std::lock_guard<std::mutex> lock(_kitchen_mutex);
+
+  if (std::ranges::find(_kitchen_ids, id) != _kitchen_ids.end())
+    return Error("Kitchen with this ID already exists");
+
+  Kitchen kitchen(_catalog, _ncook, id, port);
+  _kitchen_ids.push_back(id);
+  return kitchen;
 }

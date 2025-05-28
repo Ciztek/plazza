@@ -6,9 +6,8 @@
 #include "ErrorOr.hpp"
 
 #include "ArgParser.hpp"
-#include "Kitchen.hpp"
 #include "KitchenCatalog.hpp"
-#include "Reception.hpp"
+#include "Pizza.hpp"
 #include "logging/Logger.hpp"
 
 namespace {
@@ -27,12 +26,9 @@ namespace {
     auto catalog = TRY(KitchenCalatog::load_from_file("catalog.json"));
     Log::info << "Loaded with " << catalog.recipes.size() << " recipes!";
 
-    Kitchen test(catalog, params.cook);
     Pizza p(TRY(catalog.recipes.at_value("margarita")), Pizza::XL);
-
     Log::info << p;
 
-    run_reception_repl(interactive);
     return {};
   }
 
