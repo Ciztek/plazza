@@ -15,7 +15,7 @@ AR ?= ar
 RM ?= rm --force
 
 CXXFLAGS := -std=c++20
-CXXFLAGS += -iquote $/libs -iquote $/include
+CXXFLAGS += -iquote $/libs -iquote $/src
 
 CXXFLAGS += $(shell grep -vP '^(#|$$)' ./warning_flags.conf)
 # Do not listen to bad hightlighter  ^
