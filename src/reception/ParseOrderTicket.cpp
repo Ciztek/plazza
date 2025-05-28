@@ -1,11 +1,12 @@
+#include <algorithm>
 #include <cctype>
 #include <string>
 #include <vector>
 
 #include "ErrorOr.hpp"
-
 #include "TicketFacade.hpp"
 #include "TicketInternal.hpp"
+#include "logging/Logger.hpp"
 
 Lexer::Lexer(std::string input) : _input(std::move(input)), _pos(0) {}
 
@@ -30,15 +31,16 @@ auto Lexer::tokenize() -> ErrorOr<std::vector<Token>>
     }
 
     // TODO: improve detection with further lookahead
+    skip_whitespace();
     if (_input[_pos] == 'x') {
       auto num = TRY(consume_number());
       tokens.push_back({TokenType::Number, num});
     }
-
+    skip_whitespace();
     std::string word = consume_word();
     if (is_valid_size(word))
       tokens.push_back({TokenType::Size, word});
-    else
+    else if (!std::ranges::all_of(word, isspace))
       tokens.push_back({TokenType::Word, word});
   }
 
