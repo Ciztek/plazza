@@ -74,7 +74,7 @@ out_bonus := bonus
 # call mk-bin, bin-name, profile, a-src
 define mk-bin
 
-objs__$(strip $1) := $(base-src:%.cpp=$(BUILD)/$(strip $1)/%.o)
+objs__$(strip $1) := $$(src_$(strip $1):%.cpp=$(BUILD)/$(strip $1)/%.o)
 lib_objs__$(strip $1) += $$(filter $(BUILD)/$(strip $1)/%, $$(every_lib))
 
 $$(out_$(strip $1)): LDFLAGS += $$(LDFLAGS_$(strip $1))
@@ -90,8 +90,12 @@ every_obj += $$(objs__$(strip $1))
 endef
 
 base-src != find src -type f -name "*.cpp"
+src_release := $(base-src)
+src_debug := $(base-src)
+src_check := $(base-src)
+src_cov := $(base-src)
 
-$(foreach build-mode, release debug check cov,                                 \
+$(foreach build-mode, release debug check cov test_client test_server,         \
 	$(eval $(call generic-o-builder, $(build-mode)))                           \
 	$(foreach lib-name, $(libs),                                               \
 		$(eval $(call mk-archive-lib, $(lib-name), $(build-mode))))            \
@@ -106,6 +110,15 @@ $(foreach build-mode, release debug check,                                     \
 	$(info $(call mk-bin, $(build-mode)))                                      \
 )
 endif
+
+out_test_client := test_client
+src_test_client := tests/client.cpp $(wildcard src/protocol/*.cpp)
+
+out_test_server := test_server
+src_test_server := tests/server.cpp $(wildcard src/protocol/*.cpp)
+
+$(eval $(call mk-bin, test_client))
+$(eval $(call mk-bin, test_server))
 
 CC_JSON := compile_commands.json
 

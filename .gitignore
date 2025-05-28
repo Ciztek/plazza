@@ -16,3 +16,6 @@ compile_commands.json
 .pre-commit-config.yaml
 ecsls.toml
 .envrc
+
+test_client
+test_server
