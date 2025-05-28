@@ -7,7 +7,7 @@
 
 #include "ArgParser.hpp"
 #include "KitchenCatalog.hpp"
-#include "Pizza.hpp"
+#include "Reception.hpp"
 #include "logging/Logger.hpp"
 
 namespace {
@@ -18,6 +18,10 @@ namespace {
     bool interactive = isatty(fileno(stdin));
     if (interactive)
       LogStream::logger_configure(LogLevel::INFO, LogType::SIMPLE);
+#ifdef DEBUG_MODE
+    if (interactive)
+      LogStream::logger_configure(LogLevel::DEBUG, LogType::SIMPLE);
+#endif
     /* ^ we do it first to avoid logging being used before */
 
     auto params = TRY(Params::parse_arguments(argc, argv));
@@ -29,6 +33,8 @@ namespace {
     Pizza p(TRY(catalog.recipes.at_value("margarita")), Pizza::XL);
     Log::info << p;
 
+    Reception reception(catalog, params.cook);
+    reception.run_repl(interactive);
     return {};
   }
 
